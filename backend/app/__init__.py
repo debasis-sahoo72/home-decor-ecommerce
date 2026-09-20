@@ -1,0 +1,1 @@
+"""Home decor backend package."""

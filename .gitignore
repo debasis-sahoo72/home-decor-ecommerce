@@ -1,0 +1,27 @@
+# Local secrets
+.env
+.env.*
+!.env.example
+!**/.env.example
+# JavaScript
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+# Local tooling and output
+.tools/
+.logs/
+dist/
+build/
+.DS_Store
+Thumbs.db
+.idea/
