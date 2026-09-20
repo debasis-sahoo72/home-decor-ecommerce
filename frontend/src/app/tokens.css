@@ -1,0 +1,62 @@
+@theme {
+  --color-canvas: #faf7f2;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f0e9df;
+  --color-ink: #302923;
+  --color-ink-muted: #665c52;
+  --color-brand: #5b6548;
+  --color-brand-hover: #454e35;
+  --color-on-brand: #ffffff;
+  --color-accent: #a65336;
+  --color-border: #d8cfc3;
+  --color-input-border: #8b7d6e;
+  --color-focus: #315f86;
+  --color-success: #306444;
+  --color-success-soft: #edf5ef;
+  --color-warning: #805312;
+  --color-warning-soft: #fff4df;
+  --color-danger: #a22c29;
+  --color-danger-soft: #fff0ee;
+  --font-display: Georgia, "Times New Roman", serif;
+  --font-ui: Arial, Helvetica, sans-serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --spacing: 0.25rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-pill: 9999px;
+  --shadow-card: 0 2px 12px rgb(48 41 35 / 0.06);
+  --shadow-popover: 0 8px 28px rgb(48 41 35 / 0.12);
+  --shadow-modal: 0 20px 64px rgb(48 41 35 / 0.18);
+  --breakpoint-sm: 40rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 80rem;
+  --breakpoint-2xl: 96rem;
+}
+
+@layer components {
+  .button { @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-5 py-3 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50; }
+  .button-primary { @apply bg-brand text-on-brand hover:bg-brand-hover; }
+  .button-secondary { @apply border border-input-border bg-surface text-ink hover:bg-surface-muted; }
+  .button-danger { @apply bg-danger text-white; }
+  .input { @apply min-h-11 w-full rounded-md border border-input-border bg-surface px-3 py-2 text-base text-ink placeholder:text-ink-muted aria-invalid:border-danger disabled:bg-surface-muted; }
+  .card { @apply rounded-lg border border-border bg-surface p-6 shadow-card; }
+  .badge { @apply inline-flex items-center rounded-pill px-3 py-1 text-xs font-semibold; }
+  .badge-success { @apply bg-success-soft text-success; }
+  .badge-warning { @apply bg-warning-soft text-warning; }
+  .badge-danger { @apply bg-danger-soft text-danger; }
+}
