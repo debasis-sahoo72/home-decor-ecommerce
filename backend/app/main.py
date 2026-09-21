@@ -12,7 +12,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from starlette.exceptions import HTTPException
 
-from app.api import auth, health
+from app.api import auth, catalog, health, shopping
 from app.config import Settings, get_settings
 from app.core.errors import AppError
 
@@ -54,7 +54,7 @@ def create_app(settings: Settings | None = None, database_engine=None) -> FastAP
         CORSMiddleware,
         allow_origins=settings.allowed_origins,
         allow_credentials=True,
-        allow_methods=["GET", "POST"],
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
         allow_headers=["Content-Type", "X-CSRF-Token"],
         expose_headers=["X-Request-ID"],
     )
@@ -131,6 +131,8 @@ def create_app(settings: Settings | None = None, database_engine=None) -> FastAP
 
     app.include_router(health.router, prefix="/api/v1")
     app.include_router(auth.router, prefix="/api/v1")
+    app.include_router(catalog.router, prefix="/api/v1")
+    app.include_router(shopping.router, prefix="/api/v1")
     return app
 
 

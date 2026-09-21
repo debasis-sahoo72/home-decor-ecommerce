@@ -1,6 +1,8 @@
 # Home Decor Store
 
-Phases 01–06 include architecture, setup, design tokens, PostgreSQL models/migration, a FastAPI foundation and customer/admin authentication. Storefront pages, catalog APIs, checkout and payment processing are later phases. There is no finished website or public deployment yet.
+Phases 01–11 include architecture, setup, design tokens, PostgreSQL models/migrations, customer/admin authentication, catalog APIs, a responsive storefront, and the product detail page with stock-checked bag actions and delivery checks. Full checkout, payments and public deployment are later phases. See [catalog and storefront](docs/catalog-and-storefront.md) and [product detail](docs/product-detail.md) for endpoints, data setup and validation.
+
+Local project folder: `C:\Users\sonal\Projects\home-decor-ecommerce` (outside OneDrive).
 
 - [Architecture](docs/architecture.md): target production design and assumptions.
 - [Design system](docs/design-system.md): 21 design areas and Tailwind tokens.
@@ -97,6 +99,7 @@ From `frontend` (use the npm fallback if needed):
 npm run check:contrast
 npm run lint
 npm run typecheck
+npm test
 npm run build
 ```
 
@@ -106,6 +109,6 @@ From `backend`, use `.\.venv\Scripts\python.exe -m app.cli create-admin`. It ask
 
 Admin authorization exists. MFA, email verification, password recovery, security hardening and deployment remain launch requirements. See the authentication guide for the full contract.
 
-The Git branch remains `codex/initial-architecture`; no commit, remote or push was made. Configure your own Git identity/remote before publishing and review `git status --short`. Secrets, dependencies and PostgreSQL data are ignored.
+The configured GitHub remote is `https://github.com/debasis-sahoo72/home-decor-ecommerce.git`. Review `git status --short` before committing or publishing. Secrets, dependencies and PostgreSQL data are ignored.
 
 Versions are locked in npm/Python lockfiles. Argon2 and email-validator are the only additional runtime packages for authentication. ESLint 9 is retained for compatibility with the current Next.js React lint plugin, despite its deprecation notice. Two upstream test-client warnings remain visible.

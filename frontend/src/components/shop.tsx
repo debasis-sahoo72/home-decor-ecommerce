@@ -1,0 +1,202 @@
+import Link from "next/link";
+import { api, ApiError, Category, ProductPage } from "@/lib/catalog";
+import ProductGrid from "./product-grid";
+export type Search = Record<string, string | string[] | undefined>;
+const allowed = [
+  "q",
+  "category",
+  "min_price",
+  "max_price",
+  "sort",
+  "page",
+  "in_stock",
+  "featured",
+];
+export default async function Shop({
+  search,
+  category,
+}: {
+  search: Search;
+  category?: Category;
+}) {
+  const params = new URLSearchParams();
+  for (const key of allowed) {
+    const value = search[key];
+    if (typeof value === "string" && value) params.set(key, value);
+  }
+  if (category) params.set("category", category.slug);
+  let categories: Category[];
+  let result: ProductPage;
+  try {
+    [categories, result] = await Promise.all([
+      api<Category[]>("/categories"),
+      api<ProductPage>(`/products?${params}`),
+    ]);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 422)
+      return (
+        <section className="wrap section">
+          <h1>Check your filters</h1>
+          <p>
+            Use positive prices, a valid page number and a minimum price below
+            the maximum.
+          </p>
+          <Link
+            className="button button-primary"
+            href={category ? `/categories/${category.slug}` : "/shop"}
+          >
+            Reset filters
+          </Link>
+        </section>
+      );
+    throw error;
+  }
+  const path = category ? `/categories/${category.slug}` : "/shop";
+  const pageLink = (page: number) => {
+    const next = new URLSearchParams(params);
+    next.set("page", String(page));
+    if (category) next.delete("category");
+    return `${path}?${next}`;
+  };
+  return (
+    <>
+      <section className="wrap shop-intro">
+        <div className="breadcrumbs">
+          <Link href="/">Home</Link> / <Link href="/shop">Shop</Link>
+          {category && ` / ${category.name}`}
+        </div>
+        <p className="eyebrow">Find something that feels like you</p>
+        <h1>{category?.name || "The collection"}</h1>
+        <p className="muted">
+          {category?.description || "Beautiful details for the rooms you love."}
+        </p>
+      </section>
+      <div className="wrap shop-layout">
+        <aside aria-label="Product filters">
+          <details className="filter-panel" open>
+            <summary>Filter & sort</summary>
+            <form action={path} className="filters">
+              <label>
+                Search
+                <input
+                  className="input"
+                  name="q"
+                  type="search"
+                  maxLength={100}
+                  defaultValue={params.get("q") || ""}
+                  placeholder="Try ceramic vase"
+                />
+              </label>
+              {!category && (
+                <label>
+                  Category
+                  <select
+                    className="input"
+                    name="category"
+                    defaultValue={params.get("category") || ""}
+                  >
+                    <option value="">All categories</option>
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.slug}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+              <label>
+                Minimum price (₹)
+                <input
+                  className="input"
+                  type="number"
+                  name="min_price"
+                  min="0"
+                  step="0.01"
+                  defaultValue={params.get("min_price") || ""}
+                />
+              </label>
+              <label>
+                Maximum price (₹)
+                <input
+                  className="input"
+                  type="number"
+                  name="max_price"
+                  min="0"
+                  step="0.01"
+                  defaultValue={params.get("max_price") || ""}
+                />
+              </label>
+              <label>
+                Sort by
+                <select
+                  className="input"
+                  name="sort"
+                  defaultValue={params.get("sort") || "newest"}
+                >
+                  <option value="newest">Newest arrivals</option>
+                  <option value="price_asc">Price: low to high</option>
+                  <option value="price_desc">Price: high to low</option>
+                  <option value="name">Name: A to Z</option>
+                  <option value="best_sellers">Best sellers</option>
+                </select>
+              </label>
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  name="in_stock"
+                  value="true"
+                  defaultChecked={params.get("in_stock") === "true"}
+                />{" "}
+                In stock only
+              </label>
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  name="featured"
+                  value="true"
+                  defaultChecked={params.get("featured") === "true"}
+                />{" "}
+                The featured edit
+              </label>
+              <button className="button button-primary" type="submit">
+                Apply filters
+              </button>
+              <Link href={path}>Clear filters</Link>
+            </form>
+          </details>
+        </aside>
+        <section aria-label="Products">
+          <p className="results-meta">
+            {result.total} {result.total === 1 ? "piece" : "pieces"}
+            {params.get("q") && ` for “${params.get("q")}”`}
+          </p>
+          {result.items.length > 0 ? (
+            <ProductGrid products={result.items} />
+          ) : (
+            <div className="empty-note">
+              <h2>Room for something new.</h2>
+              <p>
+                No pieces match these filters right now. Try a different search
+                or explore the full collection.
+              </p>
+              <Link href={path}>Reset filters ↗</Link>
+            </div>
+          )}
+          {result.pages > 1 && (
+            <nav className="pagination" aria-label="Pagination">
+              {result.page > 1 && (
+                <Link href={pageLink(result.page - 1)}>← Previous</Link>
+              )}
+              <span>
+                Page {result.page} of {result.pages}
+              </span>
+              {result.page < result.pages && (
+                <Link href={pageLink(result.page + 1)}>Next →</Link>
+              )}
+            </nav>
+          )}
+        </section>
+      </div>
+    </>
+  );
+}

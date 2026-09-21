@@ -27,13 +27,13 @@ def preauth_token(secret: str) -> str:
     return f"{value}.{signature}"
 
 
-def valid_preauth(token: str, secret: str) -> bool:
+def valid_preauth(token: str, secret: str, max_age: int = 600) -> bool:
     try:
         stamp, random, signature = token.split(".")
         age = time.time() - int(stamp)
         expected = hmac.new(
             secret.encode(), f"{stamp}.{random}".encode(), hashlib.sha256
         ).hexdigest()
-        return 0 <= age <= 600 and hmac.compare_digest(signature, expected)
+        return 0 <= age <= max_age and hmac.compare_digest(signature, expected)
     except (ValueError, TypeError):
         return False

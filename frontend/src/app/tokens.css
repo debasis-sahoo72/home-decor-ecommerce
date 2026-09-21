@@ -49,14 +49,34 @@
 }
 
 @layer components {
-  .button { @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-5 py-3 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50; }
-  .button-primary { @apply bg-brand text-on-brand hover:bg-brand-hover; }
-  .button-secondary { @apply border border-input-border bg-surface text-ink hover:bg-surface-muted; }
-  .button-danger { @apply bg-danger text-white; }
-  .input { @apply min-h-11 w-full rounded-md border border-input-border bg-surface px-3 py-2 text-base text-ink placeholder:text-ink-muted aria-invalid:border-danger disabled:bg-surface-muted; }
-  .card { @apply rounded-lg border border-border bg-surface p-6 shadow-card; }
-  .badge { @apply inline-flex items-center rounded-pill px-3 py-1 text-xs font-semibold; }
-  .badge-success { @apply bg-success-soft text-success; }
-  .badge-warning { @apply bg-warning-soft text-warning; }
-  .badge-danger { @apply bg-danger-soft text-danger; }
+  .button {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-5 py-3 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .button-primary {
+    @apply bg-brand text-on-brand hover:bg-brand-hover;
+  }
+  .button-secondary {
+    @apply border border-input-border bg-surface text-ink hover:bg-surface-muted;
+  }
+  .button-danger {
+    @apply bg-danger text-white;
+  }
+  .input {
+    @apply min-h-11 w-full rounded-md border border-input-border bg-surface px-3 py-2 text-base text-ink placeholder:text-ink-muted aria-invalid:border-danger disabled:bg-surface-muted;
+  }
+  .card {
+    @apply rounded-lg border border-border bg-surface p-6 shadow-card;
+  }
+  .badge {
+    @apply inline-flex items-center rounded-pill px-3 py-1 text-xs font-semibold;
+  }
+  .badge-success {
+    @apply bg-success-soft text-success;
+  }
+  .badge-warning {
+    @apply bg-warning-soft text-warning;
+  }
+  .badge-danger {
+    @apply bg-danger-soft text-danger;
+  }
 }

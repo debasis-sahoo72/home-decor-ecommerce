@@ -7,12 +7,14 @@ from sqlalchemy import (
     CheckConstraint,
     DateTime,
     ForeignKey,
+    Index,
     Integer,
     Numeric,
     String,
     Text,
     UniqueConstraint,
     func,
+    text,
 )
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -61,6 +63,10 @@ class Category(Record, Base):
     __tablename__ = "categories"
     name: Mapped[str] = mapped_column(String(100))
     slug: Mapped[str] = mapped_column(String(120), unique=True)
+    description: Mapped[str] = mapped_column(Text, default="", server_default="")
+    active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
+    seo_title: Mapped[str | None] = mapped_column(String(70))
+    seo_description: Mapped[str | None] = mapped_column(String(160))
     archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     products: Mapped[list["Product"]] = relationship(back_populates="category")
 
@@ -71,6 +77,11 @@ class Product(Record, Base):
     name: Mapped[str] = mapped_column(String(200))
     slug: Mapped[str] = mapped_column(String(220), unique=True)
     description: Mapped[str] = mapped_column(Text, default="")
+    specifications: Mapped[dict] = mapped_column(JSONB, default=dict, server_default="{}")
+    active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
+    featured: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+    seo_title: Mapped[str | None] = mapped_column(String(70))
+    seo_description: Mapped[str | None] = mapped_column(String(160))
     archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), index=True)
     category: Mapped[Category] = relationship(back_populates="products")
     variants: Mapped[list["ProductVariant"]] = relationship(back_populates="product")
@@ -98,11 +109,17 @@ class ProductImage(Record, Base):
 
 class ProductVariant(Record, Base):
     __tablename__ = "product_variants"
-    __table_args__ = (CheckConstraint("price >= 0", name="price"),)
+    __table_args__ = (
+        CheckConstraint("price >= 0", name="price"),
+        CheckConstraint(
+            "compare_at_price IS NULL OR compare_at_price >= price", name="compare_price"
+        ),
+    )
     product_id: Mapped[UUID] = mapped_column(ForeignKey("products.id"), index=True)
     sku: Mapped[str] = mapped_column(String(80), unique=True)
     label: Mapped[str] = mapped_column(String(100))
     price: Mapped[Decimal] = mapped_column(Numeric(12, 2))
+    compare_at_price: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
     active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
     product: Mapped[Product] = relationship(back_populates="variants")
     inventory: Mapped["Inventory"] = relationship(back_populates="variant", uselist=False)
@@ -300,3 +317,23 @@ class AuthRateBucket(Base):
     key: Mapped[str] = mapped_column(String(64), primary_key=True)
     count: Mapped[int] = mapped_column(Integer)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+
+
+Index(
+    "ix_products_public_created",
+    Product.created_at,
+    Product.id,
+    postgresql_where=text("active AND archived_at IS NULL"),
+)
+Index(
+    "ix_variants_active_price",
+    ProductVariant.price,
+    ProductVariant.product_id,
+    postgresql_where=text("active"),
+)
+Index(
+    "ix_products_search",
+    text("to_tsvector('english'::regconfig, (name::text || ' '::text) || description)"),
+    _table=Product.__table__,
+    postgresql_using="gin",
+)

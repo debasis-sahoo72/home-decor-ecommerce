@@ -6,6 +6,7 @@
     "node": ">=24 <25"
   },
   "scripts": {
+    "test": "node --experimental-strip-types --test tests/*.test.ts",
     "dev": "next dev --hostname 127.0.0.1",
     "build": "next build",
     "start": "next start --hostname 127.0.0.1",
