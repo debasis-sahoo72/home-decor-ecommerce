@@ -1,25 +1,60 @@
 import Link from "next/link";
+import Icon from "./icon";
 export function Header() {
   return (
     <>
       <div className="announcement">
-        Thoughtful details. A home that feels like you.
+        Beautiful details. Everyday living.{" "}
+        <span>Delivery availability checked by PIN code.</span>
       </div>
-      <header className="site-header wrap">
-        <Link className="wordmark" href="/" aria-label="Home Decor home">
-          home<span>decor.</span>
-        </Link>
-        <nav aria-label="Main navigation">
+      <header className="store-header">
+        <div className="site-header wrap">
+          <Link className="brand" href="/" aria-label="Home Decor home">
+            <span className="brand-seal">
+              <Icon name="leaf" />
+            </span>
+            <span className="wordmark">
+              home<span>decor.</span>
+              <small>Objects for a beautiful home</small>
+            </span>
+          </Link>
+          <form action="/shop" role="search" className="header-search">
+            <label className="sr-only" htmlFor="header-search">
+              Search home decor
+            </label>
+            <input
+              id="header-search"
+              name="q"
+              type="search"
+              maxLength={100}
+              placeholder="Search for vases, lighting, textiles…"
+            />
+            <button type="submit" aria-label="Search">
+              <Icon name="search" />
+            </button>
+          </form>
+          <div className="header-actions">
+            <Link href="/wishlist" aria-label="Saved pieces">
+              <Icon name="heart" />
+              <span>Wishlist</span>
+            </Link>
+            <Link href="/cart" aria-label="Shopping bag">
+              <Icon name="bag" />
+              <span>Bag</span>
+            </Link>
+          </div>
+        </div>
+        <nav className="store-nav wrap" aria-label="Main navigation">
+          <Link href="/">Home</Link>
           <Link href="/shop">Shop all</Link>
+          <Link href="/categories/decor-objects">Decor objects</Link>
+          <Link href="/categories/textiles">Soft furnishings</Link>
+          <Link href="/categories/lighting">Lighting</Link>
           <Link href="/shop?sort=newest">New arrivals</Link>
-          <Link href="/shop?featured=true">The edit</Link>
+          <Link className="edit-link" href="/shop?featured=true">
+            The edit
+          </Link>
         </nav>
-        <Link className="saved-link" href="/wishlist">
-          ♡ <span>Saved pieces</span>
-        </Link>
-        <Link className="saved-link" href="/cart">
-          Bag
-        </Link>
       </header>
     </>
   );
@@ -32,25 +67,32 @@ export function Footer() {
           <Link href="/" className="wordmark">
             home<span>decor.</span>
           </Link>
-          <p>Make room for the little things.</p>
-          <p className="muted">Home decor, thoughtfully brought together.</p>
+          <h3>A little more you. In every room.</h3>
+          <p>
+            Warm textures, sculptural details and everyday inspiration for a
+            home that tells your story.
+          </p>
         </div>
         <nav aria-label="Footer navigation">
-          <Link href="/shop">Explore the collection</Link>
+          <p className="eyebrow">Explore</p>
+          <Link href="/shop">All pieces</Link>
           <Link href="/shop?sort=newest">New arrivals</Link>
-          <Link href="/wishlist">Your saved pieces</Link>
+          <Link href="/shop?featured=true">The considered edit</Link>
+          <Link href="/wishlist">Your wishlist</Link>
         </nav>
         <div>
-          <p className="eyebrow">Made for everyday living</p>
+          <p className="eyebrow">Make yourself at home</p>
           <p>Based in Bangalore, India.</p>
-          <p className="muted">
-            Delivery availability and timings depend on your location.
+          <p>Check your PIN code on each product for delivery availability.</p>
+          <p className="footer-demo">
+            Products marked Demo are preview samples with illustrative imagery
+            and prices.
           </p>
         </div>
       </div>
       <div className="wrap footer-bottom">
-        © {new Date().getFullYear()} Home Decor · A little more you, in every
-        room.
+        <span>© {new Date().getFullYear()} Home Decor</span>
+        <span>Considered details. Everyday beauty.</span>
       </div>
     </footer>
   );

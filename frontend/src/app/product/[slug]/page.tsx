@@ -5,6 +5,7 @@ import { productJsonLd, serializeJsonLd } from "@/lib/product-seo";
 import ProductGallery from "@/components/product-gallery";
 import ProductPurchase from "@/components/product-purchase";
 import ProductGrid from "@/components/product-grid";
+import { imageSource, isDemo, productName } from "@/lib/media";
 type Reviews = {
   items: {
     id: string;
@@ -45,7 +46,7 @@ export async function generateMetadata({
       url: `/product/${p.slug}`,
       images: p.images
         .slice(0, 1)
-        .map((i) => ({ url: i.url, alt: i.alt || p.name })),
+        .map((i) => ({ url: imageSource(i.url), alt: i.alt || p.name })),
     },
     ...((await searchParams).reviews
       ? { robots: { index: false, follow: true } }
@@ -86,22 +87,25 @@ export default async function Page({
         <nav className="breadcrumbs" aria-label="Breadcrumb">
           <Link href="/shop">Shop</Link> /{" "}
           <Link href={`/categories/${p.category.slug}`}>{p.category.name}</Link>{" "}
-          / <span>{p.name}</span>
+          / <span>{productName(p.name)}</span>
         </nav>
         <div className="pdp-grid">
           <ProductGallery images={p.images} name={p.name} />
           <div className="pdp-summary">
             <p className="eyebrow">{p.category.name} / The considered home</p>
-            <h1>{p.name}</h1>
+            <h1>{productName(p.name)}</h1>
+            {isDemo(p.name) && (
+              <p className="demo-notice">
+                Demo collection · AI-created imagery and sample pricing. For
+                preview only.
+              </p>
+            )}
             <a href="#reviews" className="review-link">
               {p.review_count > 0
                 ? `★ ${p.rating} · ${p.review_count} customer reviews`
                 : "No reviews yet"}
             </a>
-            <p className="pdp-intro">
-              {p.description.slice(0, 220)}
-              {p.description.length > 220 ? "…" : ""}
-            </p>
+            <p className="pdp-intro">{p.description.split("\n\n")[0]}</p>
             <ProductPurchase product={p} />
           </div>
         </div>
@@ -186,7 +190,7 @@ export default async function Page({
             <div className="section-heading">
               <div>
                 <p className="eyebrow">Better together</p>
-                <h2>A few lovely companions.</h2>
+                <h2>You may also like</h2>
               </div>
               <Link href={`/categories/${p.category.slug}`}>
                 Explore {p.category.name} ↗

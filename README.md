@@ -4,6 +4,19 @@ Phases 01–11 include architecture, setup, design tokens, PostgreSQL models/mig
 
 Local project folder: `C:\Users\sonal\Projects\home-decor-ecommerce` (outside OneDrive).
 
+After completing the first-time setup, start or verify all local services from the
+project root with `powershell -File .\scripts\start-local.ps1`. It starts the bundled
+PostgreSQL service when present, applies migrations, starts missing app servers and
+checks database readiness. Keep all three services running while viewing the site.
+Background server logs are in `.tools`. An empty catalog is different from an outage:
+real products must be entered through the admin API before product cards appear.
+
+For an optional local preview, run `python -m app.seed_demo` with the backend
+virtualenv from `backend`. This idempotently adds six `[DEMO]` products, three of
+them featured. Prices and stock are examples; each product has four AI-created demo photos. No reviews, orders or delivery rules are invented. The command refuses
+production environments and nonlocal database hosts. Remove or deactivate these
+demo products before migrating a development database into production.
+
 - [Architecture](docs/architecture.md): target production design and assumptions.
 - [Design system](docs/design-system.md): 21 design areas and Tailwind tokens.
 - [Database](docs/database.md): relationships, ER diagram, constraints, states and seeds.
@@ -68,7 +81,7 @@ cd frontend
 node ../.tools/npm/package/bin/npm-cli.js run dev
 ```
 
-On a standard installation use `npm run dev`. Open <http://127.0.0.1:3000> for the development placeholder, and <http://127.0.0.1:8000/docs> for API contracts. Authentication requires the CSRF sequence in its guide. Run backend commands from `backend` so `.env` loads; restart/rebuild Next.js when changing `BACKEND_URL`.
+On a standard installation use `npm run dev`. Open <http://127.0.0.1:3000> for the storefront preview, and <http://127.0.0.1:8000/docs> for API contracts. Authentication requires the CSRF sequence in its guide. Run backend commands from `backend` so `.env` loads; restart/rebuild Next.js when changing `BACKEND_URL`.
 
 Verify in another terminal:
 
@@ -112,3 +125,5 @@ Admin authorization exists. MFA, email verification, password recovery, security
 The configured GitHub remote is `https://github.com/debasis-sahoo72/home-decor-ecommerce.git`. Review `git status --short` before committing or publishing. Secrets, dependencies and PostgreSQL data are ignored.
 
 Versions are locked in npm/Python lockfiles. Argon2 and email-validator are the only additional runtime packages for authentication. ESLint 9 is retained for compatibility with the current Next.js React lint plugin, despite its deprecation notice. Two upstream test-client warnings remain visible.
+
+See [storefront visual direction](docs/storefront-visual-direction.md) for the reference design, consistent image dimensions, demo asset conventions and guidelines for every later page.

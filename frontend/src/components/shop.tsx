@@ -1,6 +1,10 @@
 import Link from "next/link";
+import Image from "next/image";
+import { imageSource } from "@/lib/media";
 import { api, ApiError, Category, ProductPage } from "@/lib/catalog";
 import ProductGrid from "./product-grid";
+import CatalogUnavailable from "./catalog-unavailable";
+import ResponsiveFilters from "./responsive-filters";
 export type Search = Record<string, string | string[] | undefined>;
 const allowed = [
   "q",
@@ -49,7 +53,8 @@ export default async function Shop({
           </Link>
         </section>
       );
-    throw error;
+    // A backend outage is an expected recoverable state, not a rendering failure.
+    return <CatalogUnavailable />;
   }
   const path = category ? `/categories/${category.slug}` : "/shop";
   const pageLink = (page: number) => {
@@ -60,22 +65,39 @@ export default async function Shop({
   };
   return (
     <>
-      <section className="wrap shop-intro">
-        <div className="breadcrumbs">
-          <Link href="/">Home</Link> / <Link href="/shop">Shop</Link>
-          {category && ` / ${category.name}`}
+      <section className="shop-banner">
+        {result.items[0]?.images[0] && (
+          <Image
+            src={imageSource(result.items[0].images[0].url)}
+            alt=""
+            fill
+            sizes="100vw"
+          />
+        )}
+        <div className="wrap shop-intro">
+          <div className="breadcrumbs">
+            <Link href="/">Home</Link> / <Link href="/shop">Shop</Link>
+            {category && ` / ${category.name}`}
+          </div>
+          <p className="eyebrow">Find something that feels like you</p>
+          <h1>
+            {category?.name ||
+              (params.get("featured") === "true"
+                ? "The considered edit"
+                : params.get("sort") === "newest"
+                  ? "New arrivals"
+                  : "The collection")}
+          </h1>
+          <p className="muted">
+            {category?.description ||
+              "Beautiful details for the rooms you love."}
+          </p>
         </div>
-        <p className="eyebrow">Find something that feels like you</p>
-        <h1>{category?.name || "The collection"}</h1>
-        <p className="muted">
-          {category?.description || "Beautiful details for the rooms you love."}
-        </p>
       </section>
       <div className="wrap shop-layout">
         <aside aria-label="Product filters">
-          <details className="filter-panel" open>
-            <summary>Filter & sort</summary>
-            <form action={path} className="filters">
+          <ResponsiveFilters>
+            <form key={params.toString()} action={path} className="filters">
               <label>
                 Search
                 <input
@@ -163,7 +185,7 @@ export default async function Shop({
               </button>
               <Link href={path}>Clear filters</Link>
             </form>
-          </details>
+          </ResponsiveFilters>
         </aside>
         <section aria-label="Products">
           <p className="results-meta">

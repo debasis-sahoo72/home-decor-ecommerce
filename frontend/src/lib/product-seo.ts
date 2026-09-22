@@ -1,4 +1,5 @@
 import type { Product } from "./catalog";
+import { imageSource } from "./media.ts";
 export function productJsonLd(p: Product, base: string) {
   const url = new URL(`/product/${p.slug}`, base).href;
   return {
@@ -8,7 +9,9 @@ export function productJsonLd(p: Product, base: string) {
     name: p.name,
     url,
     description: p.description,
-    ...(p.images.length ? { image: p.images.map((i) => i.url) } : {}),
+    ...(p.images.length
+      ? { image: p.images.map((i) => new URL(imageSource(i.url), base).href) }
+      : {}),
     ...(p.variants.length === 1 ? { sku: p.variants[0].sku } : {}),
     offers: p.variants.map((v) => ({
       "@type": "Offer",

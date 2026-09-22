@@ -1,153 +1,190 @@
 import Image from "next/image";
 import Link from "next/link";
-import { api, Category, ProductPage, photos } from "@/lib/catalog";
+import { api, Category, ProductPage } from "@/lib/catalog";
+import { imageSource } from "@/lib/media";
 import ProductGrid from "@/components/product-grid";
+import Icon from "@/components/icon";
 export const metadata = { alternates: { canonical: "/" } };
 export default async function Home() {
-  const [categories, arrivals, best] = await Promise.allSettled([
+  const [categories, arrivals, featured] = await Promise.allSettled([
     api<Category[]>("/categories"),
-    api<ProductPage>("/products?page_size=4"),
-    api<ProductPage>("/products?sort=best_sellers&page_size=4"),
+    api<ProductPage>("/products?sort=newest&page_size=8"),
+    api<ProductPage>("/products?featured=true&page_size=4"),
   ]);
+  const items = arrivals.status === "fulfilled" ? arrivals.value.items : [];
+  const picks = featured.status === "fulfilled" ? featured.value.items : [];
   return (
     <>
-      <section className="hero">
-        <div className="hero-copy">
-          <p className="eyebrow">Objects for a life well lived</p>
+      <section className="premium-hero">
+        <Image
+          src="/demo/hero.png"
+          alt="Ivory vases with olive branches on an oak console in a sunlit neutral home"
+          fill
+          preload
+          sizes="100vw"
+        />
+        <div className="wrap hero-content">
+          <p className="eyebrow">The art of feeling at home</p>
           <h1>
-            A home.
-            <br />A little more <em>you.</em>
+            Beautiful spaces.
+            <br />
+            Happier living.
           </h1>
           <p>
-            Quiet textures. Warm corners. Pieces that make the everyday feel a
-            little more special.
+            Thoughtful pieces. Natural textures.
+            <br />A little everyday beauty, made yours.
           </p>
           <Link className="button button-primary" href="/shop">
-            Find your next favourite <span aria-hidden="true">↗</span>
+            Shop the collection <Icon name="arrow" />
           </Link>
-          <span className="hero-note">
-            Considered details. Everyday beauty.
+          <span className="hero-note">Small details. A whole new feeling.</span>
+        </div>
+        <span className="hero-edition">THE CONSIDERED HOME / 01</span>
+      </section>
+      <div className="service-strip wrap">
+        <div>
+          <Icon name="truck" />
+          <span>
+            <strong>Find your delivery</strong>
+            <small>Check availability by PIN code</small>
           </span>
         </div>
-        <div className="hero-photo">
-          <Image
-            src={photos.room}
-            alt="A sunlit living room with soft neutral seating, natural textures and warm wood"
-            fill
-            preload
-            sizes="(max-width: 768px) 100vw, 60vw"
-          />
-          <span className="photo-caption">A softer kind of everyday.</span>
+        <div>
+          <Icon name="leaf" />
+          <span>
+            <strong>A considered collection</strong>
+            <small>Details for every corner</small>
+          </span>
         </div>
-      </section>
+        <div>
+          <Icon name="heart" />
+          <span>
+            <strong>Save what you love</strong>
+            <small>Build your personal wishlist</small>
+          </span>
+        </div>
+        <div>
+          <Icon name="sparkle" />
+          <span>
+            <strong>Look a little closer</strong>
+            <small>Materials, textures & more</small>
+          </span>
+        </div>
+      </div>
       <section className="section wrap">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Start with a little inspiration</p>
-            <h2>What feels like home?</h2>
+            <p className="eyebrow">Find your inspiration</p>
+            <h2>Shop by category</h2>
           </div>
-          <Link href="/shop">Explore everything ↗</Link>
+          <Link href="/shop">
+            View all <span aria-hidden="true">→</span>
+          </Link>
         </div>
-        {categories.status === "fulfilled" && categories.value.length > 0 ? (
-          <div className="category-grid">
-            {categories.value.map((c, i) => (
-              <Link
-                href={`/categories/${c.slug}`}
-                className={`category-tile tone-${i % 3}`}
-                key={c.id}
-              >
-                <span aria-hidden="true" className="category-number">
-                  0{i + 1}
-                </span>
-                <h3>{c.name}</h3>
-                <span>Explore collection ↗</span>
-              </Link>
-            ))}
+        {categories.status === "fulfilled" && categories.value.length ? (
+          <div className="photo-categories">
+            {categories.value.map((c) => {
+              const product = items.find((p) => p.category.id === c.id);
+              const source = product?.images[0];
+              return (
+                <Link
+                  href={`/categories/${c.slug}`}
+                  key={c.id}
+                  className="photo-category"
+                >
+                  <div>
+                    {source ? (
+                      <Image
+                        src={imageSource(source.url)}
+                        alt={source.alt}
+                        fill
+                        sizes="(max-width:640px) 45vw, 30vw"
+                      />
+                    ) : (
+                      <span className="photo-placeholder">
+                        Explore the collection
+                      </span>
+                    )}
+                    <span className="category-arrow">
+                      <Icon name="arrow" />
+                    </span>
+                  </div>
+                  <h3>{c.name}</h3>
+                  <p>Discover your next favourite</p>
+                </Link>
+              );
+            })}
           </div>
         ) : (
           <p className="empty-note">
             {categories.status === "rejected"
               ? "Our collections are temporarily unavailable. Please try again shortly."
-              : "Our first collections are taking shape. Check back soon."}
+              : "Our collections are taking shape. Please check back shortly."}
           </p>
         )}
       </section>
-      <section className="section wrap">
+      <section className="section wrap arrivals-section">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Fresh perspectives</p>
-            <h2>New to the collection</h2>
+            <p className="eyebrow">A fresh perspective</p>
+            <h2>New arrivals, timeless appeal</h2>
           </div>
-          <Link href="/shop?sort=newest">View new arrivals ↗</Link>
+          <Link href="/shop?sort=newest">Shop new arrivals →</Link>
         </div>
-        {arrivals.status === "fulfilled" && arrivals.value.items.length ? (
-          <ProductGrid products={arrivals.value.items} />
+        {items.length ? (
+          <ProductGrid products={items.slice(0, 4)} />
         ) : (
           <div className="empty-note">
             {arrivals.status === "rejected"
-              ? "We could not load the collection right now. Please visit the shop to try again."
-              : "Good things are on their way. Our first pieces will appear here as they arrive."}
-            <Link href="/shop">Explore the shop ↗</Link>
+              ? "The collection could not be loaded. Visit the shop to try again."
+              : "Our newest pieces will appear here."}
+            <Link href="/shop">Explore the shop →</Link>
           </div>
         )}
       </section>
-      <section className="editorial">
-        <div className="editorial-photo">
-          <Image
-            src={photos.detail}
-            alt="Warm wood and natural tones in a calm contemporary interior"
-            fill
-            sizes="(max-width: 768px) 100vw, 50vw"
-          />
-        </div>
-        <div className="editorial-copy">
-          <p className="eyebrow">The considered home</p>
+      <section className="collection-banner wrap">
+        <Image
+          src="/demo/hero.png"
+          alt="Warm oak, natural textures and sculptural vases for a considered home"
+          fill
+          sizes="90vw"
+        />
+        <div>
+          <p className="eyebrow">Little changes. Lovely spaces.</p>
           <h2>
-            Less rush.
+            Turn a house
             <br />
-            More room to unwind.
+            into your home.
           </h2>
-          <p>
-            Bring together a tactile throw, a gentle pool of light and an object
-            you love. Sometimes, a small change makes all the difference.
-          </p>
-          <Link className="button button-secondary" href="/shop?featured=true">
-            Discover the edit ↗
+          <p>Find beauty in the everyday.</p>
+          <Link className="button button-primary" href="/shop?featured=true">
+            Explore the edit <Icon name="arrow" />
           </Link>
         </div>
       </section>
-      {best.status === "fulfilled" && best.value.items.length > 0 && (
+      {picks.length > 0 && (
         <section className="section wrap">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">Chosen for real homes</p>
-              <h2>Best sellers</h2>
+              <p className="eyebrow">Selected with a little extra care</p>
+              <h2>The considered edit</h2>
             </div>
-            <Link href="/shop?sort=best_sellers">View best sellers ↗</Link>
+            <Link href="/shop?featured=true">View the edit →</Link>
           </div>
-          <ProductGrid products={best.value.items} />
+          <ProductGrid products={picks} />
         </section>
       )}
-      <section className="section wrap values">
-        <div>
-          <span className="eyebrow">01 / A considered collection</span>
-          <h3>Room for your own style.</h3>
-          <p>Explore lighting, textiles and decor objects in one place.</p>
-        </div>
-        <div>
-          <span className="eyebrow">02 / Details that matter</span>
-          <h3>Look a little closer.</h3>
-          <p>
-            Find dimensions, materials and available variants on each product.
-          </p>
-        </div>
-        <div>
-          <span className="eyebrow">03 / Take your time</span>
-          <h3>Keep what catches your eye.</h3>
-          <p>
-            Save your favourite pieces on this device and come back when
-            inspiration strikes.
-          </p>
+      <section className="inspiration-band">
+        <div className="wrap">
+          <Icon name="leaf" />
+          <p className="eyebrow">Make room for what matters</p>
+          <h2>
+            A softer light. A warmer corner.
+            <br />A home that feels like you.
+          </h2>
+          <Link href="/shop" className="text-link">
+            Find your finishing touch →
+          </Link>
         </div>
       </section>
     </>

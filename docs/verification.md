@@ -27,3 +27,13 @@ CI now supplies PostgreSQL, executes the full suite, checks schema drift, exerci
 Two upstream test-client deprecation warnings remain (Starlette/httpx compatibility and an AnyIO portal alias). They are visible and do not fail the suite. ESLint 9 remains pinned for the previously verified Next.js lint-plugin compatibility issue.
 
 No complete storefront/auth UI, payment integration, email verification/recovery, admin MFA, courier integration or production deployment has been implemented. No complete website is ready for customer review yet. Design-token checks do not replace rendered component accessibility testing when pages are built. Production launch still requires the security and operational gates in the architecture/authentication documents.
+
+## Storefront redesign verification — 22 September 2026
+
+- Frontend ESLint, TypeScript, production build and token contrast checks passed.
+- All three frontend SEO tests passed. Three PostgreSQL demo seed tests passed, including idempotence, four distinct images per product, preservation of stock/image IDs and refusal to overwrite an unlabelled product. Existing upstream test-client deprecation warnings remain.
+- Browser checks: desktop homepage/shop/product layout, Shop all, New arrivals (six items), The edit (three items), search for basket, four gallery views, keyboard arrows and zoom.
+- Mobile 390px checks: homepage, product page and search listing; filters collapsed, no document overflow, no broken loaded product images.
+- HTTP checks: homepage, three shop views, three categories, all six demo product pages, wishlist and cart returned 200. Database readiness returned ready.
+- Generated source assets inspected: six four-view product sets plus hero, all portraits 1122 × 1402 and hero 1536 × 1024. All copied into the repository.
+- Checkout/payment remain incomplete by phase design; no test payment or real order was placed.
