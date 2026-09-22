@@ -8,9 +8,6 @@ export default function Page() {
     <section className="wrap section">
       <p className="eyebrow">A little inspiration, kept close</p>
       <h1>Your saved pieces</h1>
-      <p className="muted">
-        Saved on this device. Clearing your browser data will remove this list.
-      </p>
       <SavedProducts />
     </section>
   );

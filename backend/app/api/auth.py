@@ -80,6 +80,14 @@ def login(
 ):
     limit_ip(request, db)
     user, token, csrf_value, age = auth.login(db, request.app.state.settings, data)
+    from app.api.shopping import cart_token
+    from app.services.shopping import merge_guest_cart
+
+    merge_guest_cart(db, cart_token(request), user.id)
+    cart_cookie = (
+        "__Host-decor-cart" if request.app.state.settings.app_env == "production" else "decor-cart"
+    )
+    clear_cookie(response, request, cart_cookie)
     set_cookie(response, request, request.app.state.settings.session_cookie, token, age)
     clear_cookie(response, request, request.app.state.settings.csrf_cookie)
     return {"user": user, "csrf_token": csrf_value}

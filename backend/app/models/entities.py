@@ -165,11 +165,11 @@ class Wishlist(Record, Base):
 
 class WishlistItem(Record, Base):
     __tablename__ = "wishlist_items"
-    __table_args__ = (UniqueConstraint("wishlist_id", "variant_id"),)
+    __table_args__ = (UniqueConstraint("wishlist_id", "product_id"),)
     wishlist_id: Mapped[UUID] = mapped_column(
         ForeignKey("wishlists.id", ondelete="CASCADE"), index=True
     )
-    variant_id: Mapped[UUID] = mapped_column(ForeignKey("product_variants.id"), index=True)
+    product_id: Mapped[UUID] = mapped_column(ForeignKey("products.id"), index=True)
 
 
 class Order(Record, Base):

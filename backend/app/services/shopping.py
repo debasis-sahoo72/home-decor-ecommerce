@@ -1,9 +1,10 @@
 """Product-page purchase checks; carts do not reserve inventory."""
 
 from datetime import datetime, timedelta, timezone
+from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.dialects.postgresql import insert
 
 from app.core.errors import AppError
@@ -49,14 +50,23 @@ def available_variant(db, variant_id, quantity):
     return variant
 
 
-def add_item(db, token_hash, variant_id, quantity):
-    # Lock the cart first, then the variant: repeat clicks are serialized.
-    db.execute(
-        insert(Cart)
-        .values(guest_token_hash=token_hash)
-        .on_conflict_do_nothing(index_elements=[Cart.guest_token_hash])
-    )
-    cart = db.scalar(select(Cart).where(Cart.guest_token_hash == token_hash).with_for_update())
+def owner_cart(db, token_hash=None, user_id=None, create=False, lock=False):
+    if user_id is None and token_hash is None:
+        return None
+    key = "user_id" if user_id else "guest_token_hash"
+    value = user_id or token_hash
+    if create:
+        db.execute(
+            insert(Cart)
+            .values(**{key: value})
+            .on_conflict_do_nothing(index_elements=[getattr(Cart, key)])
+        )
+    query = select(Cart).where(getattr(Cart, key) == value)
+    return db.scalar(query.with_for_update() if lock else query)
+
+
+def add_item(db, token_hash, variant_id, quantity, user_id=None):
+    cart = owner_cart(db, token_hash, user_id, create=True, lock=True)
     item = db.scalar(
         select(CartItem).where(CartItem.cart_id == cart.id, CartItem.variant_id == variant_id)
     )
@@ -78,54 +88,154 @@ def add_item(db, token_hash, variant_id, quantity):
     }
 
 
-def cart_items(db, token_hash):
-    cart = db.scalar(select(Cart).where(Cart.guest_token_hash == token_hash))
-    if cart is None:
-        return {"items": []}
+def money(value):
+    return str(Decimal(value).quantize(Decimal("0.01")))
+
+
+def cart_items(db, token_hash=None, user_id=None, pincode=None):
+    cart = owner_cart(db, token_hash, user_id)
     result = []
-    for item in db.scalars(
-        select(CartItem)
-        .where(CartItem.cart_id == cart.id)
-        .order_by(CartItem.created_at, CartItem.id)
-    ):
+    retail = Decimal("0")
+    merchandise = Decimal("0")
+    rows = (
+        db.scalars(
+            select(CartItem)
+            .where(CartItem.cart_id == cart.id)
+            .order_by(CartItem.created_at, CartItem.id)
+        )
+        if cart
+        else []
+    )
+    for item in rows:
         v = db.get(ProductVariant, item.variant_id)
         p, c = v.product, v.product.category
         stock = v.inventory
-        available = stock.on_hand - stock.reserved if stock else 0
+        available = max(0, stock.on_hand - stock.reserved) if stock else 0
+        visible = (
+            v.active and p.active and c.active and p.archived_at is None and c.archived_at is None
+        )
+        line = v.price * item.quantity
+        original = (v.compare_at_price or v.price) * item.quantity
+        merchandise += line
+        retail += original
+        image = min(p.images, key=lambda i: i.position) if p.images else None
         result.append(
             dict(
                 id=str(item.id),
                 variant_id=str(v.id),
+                product_id=str(p.id),
                 name=p.name,
                 slug=p.slug,
                 label=v.label,
+                sku=v.sku,
                 quantity=item.quantity,
-                price=str(v.price),
-                subtotal=str(v.price * item.quantity),
-                available_stock=available,
-                available=v.active
-                and p.active
-                and c.active
-                and p.archived_at is None
-                and c.archived_at is None
-                and available >= item.quantity,
+                price=money(v.price),
+                compare_at_price=money(v.compare_at_price) if v.compare_at_price else None,
+                subtotal=money(line),
+                discount=money(original - line),
+                available_stock=available if visible else 0,
+                available=bool(visible and available >= item.quantity),
+                image={"url": image.url, "alt": image.alt} if image else None,
             )
         )
-    return {"items": result}
+    quote = delivery(db, pincode) if pincode else None
+    valid = bool(result) and all(i["available"] for i in result)
+    fee = Decimal(quote["fee"]) if quote and quote["serviceable"] and valid else None
+    return dict(
+        items=result,
+        owner="account" if user_id else "guest",
+        item_count=sum(i["quantity"] for i in result),
+        subtotal=money(retail),
+        discount=money(retail - merchandise),
+        merchandise_total=money(merchandise),
+        delivery=quote,
+        delivery_fee=money(fee) if fee is not None else None,
+        total=money(merchandise + fee) if fee is not None else None,
+        stock_valid=valid,
+        currency="INR",
+    )
 
 
-def remove_item(db, token_hash, item_id):
-    if not token_hash:
-        raise AppError(404, "not_found", "Bag item not found.")
-    item = db.scalar(
-        select(CartItem)
-        .join(Cart)
-        .where(Cart.guest_token_hash == token_hash, CartItem.id == item_id)
-        .with_for_update()
+def owned_item(db, token_hash, item_id, user_id=None):
+    cart = owner_cart(db, token_hash, user_id, lock=True)
+    item = (
+        db.scalar(select(CartItem).where(CartItem.cart_id == cart.id, CartItem.id == item_id))
+        if cart
+        else None
     )
     if item is None:
         raise AppError(404, "not_found", "Bag item not found.")
-    db.delete(item)
+    return item
+
+
+def update_item(db, token_hash, item_id, quantity, user_id=None):
+    item = owned_item(db, token_hash, item_id, user_id)
+    available_variant(db, item.variant_id, quantity)
+    item.quantity = quantity
+    db.commit()
+
+
+def remove_item(db, token_hash, item_id, user_id=None):
+    db.delete(owned_item(db, token_hash, item_id, user_id))
+    db.commit()
+
+
+def clear_cart(db, token_hash, user_id=None):
+    cart = owner_cart(db, token_hash, user_id, lock=True)
+    if cart:
+        db.execute(delete(CartItem).where(CartItem.cart_id == cart.id))
+    db.commit()
+
+
+def merge_guest_cart(db, token_hash, user_id):
+    if not token_hash:
+        return
+    guest = owner_cart(db, token_hash)
+    if guest is None:
+        return
+    account = owner_cart(db, user_id=user_id, create=True)
+    # All cart mutations lock their parent; merging locks both in stable ID order.
+    list(
+        db.scalars(
+            select(Cart)
+            .where(Cart.id.in_([guest.id, account.id]))
+            .order_by(Cart.id)
+            .with_for_update()
+        )
+    )
+    rows = list(
+        db.scalars(
+            select(CartItem)
+            .where(CartItem.cart_id.in_([guest.id, account.id]))
+            .order_by(CartItem.variant_id)
+        )
+    )
+    existing = {i.variant_id: i for i in rows if i.cart_id == account.id}
+    incoming = [i for i in rows if i.cart_id == guest.id]
+    if len(set(existing) | {i.variant_id for i in incoming}) > 100:
+        raise AppError(
+            409,
+            "cart_limit",
+            "Your combined bag exceeds 100 options. Clear some guest items before signing in.",
+        )
+    for item in incoming:
+        target = existing.get(item.variant_id)
+        if target:
+            target.quantity = min(100, target.quantity + item.quantity)
+            db.delete(item)
+        else:
+            item.cart_id = account.id
+            target = item
+        # Preserve unavailable entries for review; never silently discard a saved item.
+        variant = db.get(ProductVariant, item.variant_id)
+        inventory = db.scalar(
+            select(Inventory).where(Inventory.variant_id == variant.id).with_for_update()
+        )
+        remaining = inventory.on_hand - inventory.reserved if inventory else 0
+        if remaining > 0:
+            target.quantity = min(target.quantity, remaining)
+    db.flush()
+    db.delete(guest)
     db.commit()
 
 

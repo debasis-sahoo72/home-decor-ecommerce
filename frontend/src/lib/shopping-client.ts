@@ -1,4 +1,14 @@
-export async function request<T>(
+let queue: Promise<unknown> = Promise.resolve();
+export function request<T>(
+  path: string,
+  body?: unknown,
+  method = "POST",
+): Promise<T> {
+  const next = queue.then(() => mutate<T>(path, body, method));
+  queue = next.catch(() => undefined);
+  return next;
+}
+async function mutate<T>(
   path: string,
   body?: unknown,
   method = "POST",

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Query, Request, Response
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session
 
-from app.api.dependencies import public_csrf, session_csrf
+from app.api.dependencies import current_identity, public_csrf, session_csrf
 from app.core.security import digest, preauth_token, valid_preauth
 from app.db import get_session
 from app.services import shopping
@@ -16,6 +16,11 @@ AGE = 30 * 24 * 60 * 60
 class CartInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
     variant_id: UUID
+    quantity: int = Field(ge=1, le=100, strict=True)
+
+
+class QuantityInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     quantity: int = Field(ge=1, le=100, strict=True)
 
 
@@ -53,22 +58,51 @@ def cart_token(request, response=None):
     return digest(token)
 
 
+def owner(request, db, response=None):
+    if request.cookies.get(request.app.state.settings.session_cookie):
+        return None, current_identity(request, db)[0].id
+    return cart_token(request, response), None
+
+
 @router.get("/cart")
-def cart(request: Request, response: Response, db: Session = Depends(get_session)):
+def cart(
+    request: Request,
+    response: Response,
+    pincode: str | None = Query(None, pattern=r"^[0-9]{6}$"),
+    db: Session = Depends(get_session),
+):
     response.headers["Cache-Control"] = "no-store"
-    token = cart_token(request)
-    return shopping.cart_items(db, token) if token else {"items": []}
+    token, user_id = owner(request, db)
+    return shopping.cart_items(db, token, user_id, pincode)
 
 
 @router.post("/cart/items", dependencies=[Depends(csrf)], status_code=201)
 def add(data: CartInput, request: Request, response: Response, db: Session = Depends(get_session)):
     response.headers["Cache-Control"] = "no-store"
-    return shopping.add_item(db, cart_token(request, response), data.variant_id, data.quantity)
+    token, user_id = owner(request, db, response)
+    return shopping.add_item(db, token, data.variant_id, data.quantity, user_id)
+
+
+@router.patch("/cart/items/{item_id}", dependencies=[Depends(csrf)], status_code=204)
+def update(
+    item_id: UUID, data: QuantityInput, request: Request, db: Session = Depends(get_session)
+):
+    token, user_id = owner(request, db)
+    shopping.update_item(db, token, item_id, data.quantity, user_id)
+    return Response(status_code=204)
 
 
 @router.delete("/cart/items/{item_id}", dependencies=[Depends(csrf)], status_code=204)
 def remove(item_id: UUID, request: Request, db: Session = Depends(get_session)):
-    shopping.remove_item(db, cart_token(request), item_id)
+    token, user_id = owner(request, db)
+    shopping.remove_item(db, token, item_id, user_id)
+    return Response(status_code=204)
+
+
+@router.delete("/cart", dependencies=[Depends(csrf)], status_code=204)
+def clear(request: Request, db: Session = Depends(get_session)):
+    token, user_id = owner(request, db)
+    shopping.clear_cart(db, token, user_id)
     return Response(status_code=204)
 
 

@@ -34,6 +34,10 @@ export function Header() {
             </button>
           </form>
           <div className="header-actions">
+            <Link href="/login" aria-label="Your account">
+              <Icon name="user" />
+              <span>Account</span>
+            </Link>
             <Link href="/wishlist" aria-label="Saved pieces">
               <Icon name="heart" />
               <span>Wishlist</span>

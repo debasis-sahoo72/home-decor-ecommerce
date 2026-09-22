@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ShoppingProvider } from "@/components/shopping-provider";
 import { Header, Footer } from "@/components/shell";
 
 export const metadata: Metadata = {
@@ -22,9 +23,11 @@ export default function RootLayout({
         <a href="#main" className="skip-link">
           Skip to content
         </a>
-        <Header />
-        <main id="main">{children}</main>
-        <Footer />
+        <ShoppingProvider>
+          <Header />
+          <main id="main">{children}</main>
+          <Footer />
+        </ShoppingProvider>
       </body>
     </html>
   );

@@ -127,3 +127,7 @@ The configured GitHub remote is `https://github.com/debasis-sahoo72/home-decor-e
 Versions are locked in npm/Python lockfiles. Argon2 and email-validator are the only additional runtime packages for authentication. ESLint 9 is retained for compatibility with the current Next.js React lint plugin, despite its deprecation notice. Two upstream test-client warnings remain visible.
 
 See [storefront visual direction](docs/storefront-visual-direction.md) for the reference design, consistent image dimensions, demo asset conventions and guidelines for every later page.
+
+## Cart and wishlist
+
+Persistent guest/account carts, server totals, stock checks and account wishlists are available. See [cart and wishlist contracts](docs/cart-and-wishlist.md) for endpoints, migration details and validation. Preview `/cart`, `/wishlist` and `/login` on the running frontend.

@@ -4,7 +4,7 @@ This design supersedes the phase-01 integer-paise storage proposal: money is `NU
 
 ## Relationships before models
 
-Users have many addresses and orders, one active cart and one wishlist. A cart may instead belong to a random guest token (stored hashed); exactly one ownership form is allowed. A product belongs to one category initially, and has many images and SKU variants. Each variant has one inventory row for the initial single warehouse. Cart and wishlist items refer to variants, with unique owner/variant pairs. Each order holds immutable address and item snapshots, while optional foreign keys preserve traceability to users/variants. Products and categories can be archived; order and payment records are retained, not soft-deleted.
+Users have many addresses and orders, one active cart and one wishlist. A cart may instead belong to a random guest token (stored hashed); exactly one ownership form is allowed. A product belongs to one category initially, and has many images and SKU variants. Each variant has one inventory row for the initial single warehouse. Cart items refer to variants with unique cart/variant pairs; wishlist items refer to products with unique wishlist/product pairs (migration 0003). Each order holds immutable address and item snapshots, while optional foreign keys preserve traceability to users/variants. Products and categories can be archived; order and payment records are retained, not soft-deleted.
 
 Orders have many payment attempts and order status events; payments have many payment status events. Each event records the old/new status, timestamp, actor and reason. PostgreSQL triggers enforce allowed transitions and automatically record state changes, including the initial state; history rejects update/delete. External payment-event IDs are unique on history rows when supplied. Provider signature verification and payment processing remain later phases.
 
@@ -24,7 +24,7 @@ erDiagram
     carts ||--o{ cart_items : contains
     product_variants ||--o{ cart_items : references
     wishlists ||--o{ wishlist_items : contains
-    product_variants ||--o{ wishlist_items : references
+    products ||--o{ wishlist_items : references
     orders ||--o{ order_items : snapshots
     orders ||--o{ payments : attempts
     orders ||--o{ order_status_events : audits

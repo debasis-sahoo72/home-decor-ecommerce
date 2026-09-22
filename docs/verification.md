@@ -37,3 +37,12 @@ No complete storefront/auth UI, payment integration, email verification/recovery
 - HTTP checks: homepage, three shop views, three categories, all six demo product pages, wishlist and cart returned 200. Database readiness returned ready.
 - Generated source assets inspected: six four-view product sets plus hero, all portraits 1122 × 1402 and hero 1536 × 1024. All copied into the repository.
 - Checkout/payment remain incomplete by phase design; no test payment or real order was placed.
+
+## Cart and wishlist — 22 September 2026
+
+- Backend: 94 PostgreSQL tests passed, including cart prices/discounts, quantity and ownership validation, guest/account merge, wishlist duplicates and archived products, and a populated migration upgrade/downgrade test.
+- Alembic: database is at revision 0003; schema comparison reports no pending changes.
+- Frontend: production Next.js build completed. Desktop and 390 px mobile cart/wishlist screens checked in the browser.
+- Browser flows: save two demo products, wishlist-to-bag, quantity change and revised totals, PIN-code rejection without a delivery promise, reload persistence, sign-in merge for cart and wishlist, wishlist removal/empty state, sign-out and separate empty guest bag.
+- Disposable local browser-test account was removed after signing out. No real customer accounts or orders were changed.
+- Final frontend lint and TypeScript checks passed after the last changes. Local homepage, cart, wishlist and account routes returned HTTP 200; `/api/v1/ready` returned `ready`.

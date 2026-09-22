@@ -76,7 +76,7 @@ PostgreSQL is the source of truth. Phase 04 creates the actual schema and migrat
 | Identity | users, password_reset_tokens, email_verification_tokens, sessions; user has many addresses and sessions |
 | Catalog | products, product_variants, categories, product_categories, product_media; product has variants and media |
 | Inventory | inventory_locations, stock_levels, stock_reservations, inventory_movements; stock keyed by location and variant |
-| Shopping | carts, cart_items, wishlists, wishlist_items; unique cart/variant or user/variant pairs |
+| Shopping | carts, cart_items, wishlists, wishlist_items; unique cart/variant and wishlist/product pairs |
 | Commerce | orders, order_items, order_address_snapshots, checkout_attempts; order items snapshot SKU, name, unit price and tax |
 | Payments | payment_attempts, payment_events, refunds; order has many attempts but fulfillment runs once |
 | Delivery | serviceable_postcodes, delivery_rules, delivery_holidays, shipments; rules have service type, cutoff, fee and lead time |
