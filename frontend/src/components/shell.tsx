@@ -1,23 +1,16 @@
 import Link from "next/link";
 import Icon from "./icon";
+import Brand from "./brand";
 export function Header() {
   return (
     <>
       <div className="announcement">
-        Beautiful details. Everyday living.{" "}
+        Beautiful spaces. Happier living.{" "}
         <span>Delivery availability checked by PIN code.</span>
       </div>
       <header className="store-header">
         <div className="site-header wrap">
-          <Link className="brand" href="/" aria-label="Home Decor home">
-            <span className="brand-seal">
-              <Icon name="leaf" />
-            </span>
-            <span className="wordmark">
-              home<span>decor.</span>
-              <small>Objects for a beautiful home</small>
-            </span>
-          </Link>
+          <Brand />
           <form action="/shop" role="search" className="header-search">
             <label className="sr-only" htmlFor="header-search">
               Search home decor
@@ -68,9 +61,7 @@ export function Footer() {
     <footer className="site-footer">
       <div className="wrap footer-grid">
         <div>
-          <Link href="/" className="wordmark">
-            home<span>decor.</span>
-          </Link>
+          <Brand footer />
           <h3>A little more you. In every room.</h3>
           <p>
             Warm textures, sculptural details and everyday inspiration for a
@@ -95,7 +86,7 @@ export function Footer() {
         </div>
       </div>
       <div className="wrap footer-bottom">
-        <span>© {new Date().getFullYear()} Home Decor</span>
+        <span>© {new Date().getFullYear()} Your Sanctuary</span>
         <span>Considered details. Everyday beauty.</span>
       </div>
     </footer>

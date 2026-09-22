@@ -37,7 +37,10 @@ export default function SignIn() {
         <>
           <p>Your bag and wishlist stay with your account across devices.</p>
           <div className="account-links">
-            <Link className="button" href="/cart">
+            <Link className="button button-secondary" href="/account/addresses">
+              Your addresses
+            </Link>
+            <Link className="button button-primary" href="/cart">
               Your bag
             </Link>
             <Link className="button button-secondary" href="/wishlist">
@@ -88,7 +91,12 @@ export default function SignIn() {
                   });
                 await request("/auth/login", { email, password });
                 await refresh();
-                router.push("/cart");
+                router.push(
+                  new URLSearchParams(window.location.search).get("next") ===
+                    "addresses"
+                    ? "/account/addresses"
+                    : "/cart",
+                );
                 router.refresh();
               } catch (e) {
                 setMessage(e instanceof Error ? e.message : "Please retry.");
@@ -136,7 +144,7 @@ export default function SignIn() {
                 characters.
               </p>
             )}
-            <button className="button" disabled={busy}>
+            <button className="button button-primary" disabled={busy}>
               {busy ? "Please wait…" : register ? "Create account" : "Sign in"}
             </button>
           </form>

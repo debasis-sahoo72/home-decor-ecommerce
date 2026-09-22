@@ -131,3 +131,7 @@ See [storefront visual direction](docs/storefront-visual-direction.md) for the r
 ## Cart and wishlist
 
 Persistent guest/account carts, server totals, stock checks and account wishlists are available. See [cart and wishlist contracts](docs/cart-and-wishlist.md) for endpoints, migration details and validation. Preview `/cart`, `/wishlist` and `/login` on the running frontend.
+
+## Customer addresses
+
+Signed-in customers can manage delivery addresses at `/account/addresses`. See [address management](docs/address-management.md) for validation, default rules and secure ownership checks.

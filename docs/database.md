@@ -49,3 +49,5 @@ Payment: created → authorized/captured/failed; authorized → captured/failed;
 `python -m app.seed` idempotently inserts only approved reference categories. No users, passwords, paid orders, fake reviews or serviceability promises are seeded. Admins are created explicitly with `python -m app.cli create-admin` using hidden password input. Test fixtures use a disposable PostgreSQL database and transactions that roll back per test.
 
 Initial migration `0001_initial` freezes schema operations and PostgreSQL audit triggers. Run `alembic upgrade head` then `alembic check`. Test upgrade, downgrade and re-upgrade on a disposable database only. Never use `create_all()` in application startup or import live model metadata into a historical migration. Existing business data requires a backup before migration changes.
+
+Migration 0004 adds address landmark, country (IN), and default status. A partial unique index enforces one default per user; owner-row locking serializes changes. Existing addresses are preserved and the oldest per user becomes default. See `address-management.md`.

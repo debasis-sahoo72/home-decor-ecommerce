@@ -1,6 +1,6 @@
 # Storefront visual direction — reference approved 21 September 2026
 
-Use the user's multi-page cream-and-green home decor reference for all subsequent phases. Keep the existing Home Decor name until the user chooses a final brand. Do not adopt sample claims, ratings, return policies or delivery promises from the reference.
+Use the user's multi-page cream-and-green home decor reference for all subsequent phases. The approved brand is Your Sanctuary, with tagline “Beautiful spaces. Happier living.” and the supplied YS monogram. Do not adopt sample claims, ratings, return policies or delivery promises from the reference.
 
 ## Shared design
 
@@ -36,3 +36,9 @@ Subjects: ivory speckled pear-shaped ceramic vase with dried stems; natural seag
 Each primary image was used as the identity reference for three additional built-in image generation calls: higher three-quarter side angle, tactile material close-up, and warm cream/oak living-room styling. The prompt explicitly preserves silhouette, colour, material, proportions and pattern.
 
 Hero prompt: wide sunlit cream wall, sculptural oak console on the right, large ivory ribbed vase with olive branches, small caramel vase, oatmeal throw and cream boucle chair; quiet left space for heading, natural window light and leaf shadows, no embedded text.
+
+## Your Sanctuary identity — 22 September 2026
+
+Original supplied assets are preserved unchanged in `frontend/public/brand/`: `ys-monogram.png`, `primary-brand-lockup.png`, and `hanging-sign-reference.png`. Use the actual transparent YS monogram with live text for crisp, accessible branding. The monogram original has a wide canvas; CSS frames it without changing the source file.
+
+The header uses a compact cream sign with two subtle suspension cords, the YS monogram beside YOUR SANCTUARY, and the full tagline beneath the name. A gentle four-second settling motion plays once, and hover/focus can replay a short sway. Never run perpetual motion; disable animation with `prefers-reduced-motion`. The footer uses the same mark without swinging. Keep mobile account, wishlist and bag controls accessible beside the compact logo.

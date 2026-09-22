@@ -1772,3 +1772,324 @@ h3 {
     padding: 1.3rem;
   }
 }
+.account-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  border-bottom: 1px solid #ded9cc;
+  margin: 1.5rem 0;
+  padding-bottom: 1rem;
+  font-size: 0.85rem;
+}
+.account-nav [aria-current] {
+  color: #3f5138;
+  text-decoration: underline;
+  text-underline-offset: 1.15rem;
+}
+.address-heading,
+.address-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.address-heading {
+  margin-bottom: 1.5rem;
+}
+.address-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+.address-card {
+  border: 1px solid #d9d3c5;
+  border-radius: 5px;
+  padding: 1.5rem;
+  background: #fffdf8;
+  overflow-wrap: anywhere;
+}
+.address-card-default {
+  border-color: #536449;
+  background: #f2f3eb;
+}
+.address-card h2 {
+  font-size: 1.5rem;
+  margin: 0;
+}
+.address-badge {
+  color: #365a37;
+  background: #e3eadc;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.7rem;
+  border-radius: 3px;
+}
+.address-card address {
+  font-style: normal;
+  font-size: 0.9rem;
+  line-height: 1.8;
+  color: #655d51;
+}
+.address-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+.address-form {
+  background: #f2eee4;
+  padding: 2rem;
+  margin: 1.5rem 0 2rem;
+  border: 1px solid #ded9cc;
+  border-radius: 5px;
+}
+.address-form h2 {
+  font-size: 1.8rem;
+  margin-top: 0;
+}
+.address-form fieldset {
+  padding: 0;
+  margin: 0;
+  border: 0;
+  min-width: 0;
+}
+.address-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+}
+.address-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+.address-fields input,
+.address-fields select {
+  width: 100%;
+  min-width: 0;
+  padding: 0.8rem;
+  border: 1px solid #cfc6b7;
+  border-radius: 3px;
+  background: #fffdf8;
+}
+.address-fields small {
+  font-size: 0.72rem;
+  color: #655d51;
+}
+.address-default {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1.4rem;
+  font-size: 0.85rem;
+}
+.address-default input {
+  width: 18px;
+  height: 18px;
+  accent-color: #3f5138;
+}
+.address-delete {
+  padding: 1rem;
+  margin-top: 1rem;
+  background: #f3e8da;
+  font-size: 0.85rem;
+}
+.address-notice {
+  color: #365a37;
+}
+@media (max-width: 640px) {
+  .address-grid,
+  .address-fields {
+    grid-template-columns: 1fr;
+  }
+  .address-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .address-form {
+    padding: 1.2rem;
+  }
+}
+/* Approved Your Sanctuary identity: original monogram, live type, hanging sign. */
+.site-header {
+  gap: 28px;
+}
+.sanctuary-brand {
+  flex-shrink: 0;
+  display: inline-block;
+  color: #30391f;
+  padding-top: 10px;
+}
+.brand-sign {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  padding: 7px 12px 7px 7px;
+  background: linear-gradient(110deg, #f8f3e6, #f1e9d8 52%, #fbf7ed);
+  border: 1px solid #d9ceb5;
+  border-radius: 4px;
+  box-shadow: 0 3px 7px #3029230b;
+  transform-origin: 50% -9px;
+  animation: sanctuary-settle 4s ease-in-out 1;
+}
+.brand-sign::before,
+.brand-sign::after {
+  content: "";
+  position: absolute;
+  top: -11px;
+  width: 3px;
+  height: 13px;
+  background: #8b7252;
+  border-radius: 2px;
+  box-shadow: 1px 0 0 #d3b882;
+}
+.brand-sign::before {
+  left: 18px;
+}
+.brand-sign::after {
+  right: 18px;
+}
+.ys-monogram {
+  position: relative;
+  flex: 0 0 51px;
+  width: 51px;
+  height: 53px;
+  overflow: hidden;
+}
+.ys-monogram img {
+  position: absolute;
+  max-width: none;
+  width: 99px;
+  height: 66px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  object-fit: contain;
+}
+.sanctuary-wordmark {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  white-space: nowrap;
+}
+.sanctuary-name {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 22px;
+  line-height: 1.1;
+  letter-spacing: -0.035em;
+}
+.sanctuary-tagline {
+  font-family: var(--font-ui);
+  text-transform: uppercase;
+  font-size: 8px;
+  letter-spacing: 0.11em;
+  line-height: 1.4;
+}
+.sanctuary-brand-footer {
+  margin-bottom: 24px;
+}
+.sanctuary-brand-footer .brand-sign {
+  animation: none;
+}
+@keyframes sanctuary-settle {
+  0% {
+    transform: rotate(-1.2deg);
+  }
+  25% {
+    transform: rotate(1deg);
+  }
+  50% {
+    transform: rotate(-0.55deg);
+  }
+  75% {
+    transform: rotate(0.25deg);
+  }
+  100% {
+    transform: rotate(0);
+  }
+}
+@keyframes sanctuary-sway {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  30% {
+    transform: rotate(-0.9deg);
+  }
+  65% {
+    transform: rotate(0.6deg);
+  }
+}
+@media (hover: hover) {
+  .sanctuary-brand:not(.sanctuary-brand-footer):hover .brand-sign {
+    animation: sanctuary-sway 2.4s ease-in-out 1;
+  }
+}
+.sanctuary-brand:not(.sanctuary-brand-footer):focus-visible .brand-sign {
+  animation: sanctuary-sway 2.4s ease-in-out 1;
+}
+@media (max-width: 640px) {
+  .site-header {
+    gap: 12px 8px;
+  }
+  .sanctuary-brand {
+    padding-top: 8px;
+  }
+  .brand-sign {
+    gap: 4px;
+    padding: 5px 7px 5px 3px;
+  }
+  .ys-monogram {
+    flex-basis: 39px;
+    width: 39px;
+    height: 42px;
+  }
+  .ys-monogram img {
+    width: 78px;
+    height: 40px;
+  }
+  .sanctuary-name {
+    font-size: 18px;
+  }
+  .sanctuary-tagline {
+    font-size: 7px;
+    letter-spacing: 0.07em;
+  }
+  .header-actions {
+    gap: 9px;
+  }
+  .header-actions a {
+    min-width: 24px;
+  }
+  .sanctuary-brand-footer .sanctuary-name {
+    font-size: 21px;
+  }
+  .sanctuary-brand-footer .sanctuary-tagline {
+    font-size: 6.7px;
+  }
+}
+@media (max-width: 360px) {
+  .sanctuary-name {
+    font-size: 15px;
+  }
+  .sanctuary-tagline {
+    font-size: 6.2px;
+    letter-spacing: 0;
+  }
+  .ys-monogram {
+    flex-basis: 32px;
+    width: 32px;
+  }
+  .header-actions {
+    gap: 6px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sanctuary-brand .brand-sign,
+  .sanctuary-brand:hover .brand-sign,
+  .sanctuary-brand:focus-visible .brand-sign {
+    animation: none;
+    transform: none;
+  }
+}

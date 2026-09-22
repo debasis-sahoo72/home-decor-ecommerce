@@ -47,8 +47,17 @@ class User(Record, Base):
 
 class Address(Record, Base):
     __tablename__ = "addresses"
-    __table_args__ = (CheckConstraint("pincode ~ '^[0-9]{6}$'", name="pincode"),)
+    __table_args__ = (
+        CheckConstraint("pincode ~ '^[0-9]{6}$'", name="pincode"),
+        CheckConstraint("country = 'IN'", name="country"),
+        Index(
+            "uq_addresses_default_user", "user_id", unique=True, postgresql_where=text("is_default")
+        ),
+    )
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    landmark: Mapped[str | None] = mapped_column(String(200))
+    country: Mapped[str] = mapped_column(String(2), server_default="IN", default="IN")
+    is_default: Mapped[bool] = mapped_column(Boolean, server_default="false", default=False)
     recipient: Mapped[str] = mapped_column(String(100))
     phone: Mapped[str] = mapped_column(String(20))
     line1: Mapped[str] = mapped_column(String(200))

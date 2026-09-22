@@ -12,7 +12,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from starlette.exceptions import HTTPException
 
-from app.api import auth, catalog, health, shopping, wishlist
+from app.api import addresses, auth, catalog, health, shopping, wishlist
 from app.config import Settings, get_settings
 from app.core.errors import AppError
 
@@ -114,7 +114,9 @@ def create_app(settings: Settings | None = None, database_engine=None) -> FastAP
             )
         response.headers["X-Request-ID"] = request.state.request_id
         response.headers["X-Content-Type-Options"] = "nosniff"
-        if request.url.path.startswith(("/api/v1/auth", "/api/v1/cart", "/api/v1/wishlist")):
+        if request.url.path.startswith(
+            ("/api/v1/auth", "/api/v1/cart", "/api/v1/wishlist", "/api/v1/addresses")
+        ):
             response.headers["Cache-Control"] = "no-store"
         logger.info(
             json.dumps(
@@ -134,6 +136,7 @@ def create_app(settings: Settings | None = None, database_engine=None) -> FastAP
     app.include_router(catalog.router, prefix="/api/v1")
     app.include_router(shopping.router, prefix="/api/v1")
     app.include_router(wishlist.router, prefix="/api/v1")
+    app.include_router(addresses.router, prefix="/api/v1")
     return app
 
 
