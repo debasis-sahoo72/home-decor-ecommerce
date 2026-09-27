@@ -18,6 +18,12 @@ class Settings(BaseSettings):
     admin_idle_minutes: int = Field(default=30, ge=1, le=120)
     login_limit: int = Field(default=10, ge=1, le=100)
     auth_ip_limit: int = Field(default=50, ge=1, le=1000)
+    razorpay_key_id: str = ""
+    razorpay_key_secret: SecretStr = SecretStr("")
+    razorpay_webhook_secret: SecretStr = SecretStr("")
+    cloudinary_cloud_name: str = Field(default="", pattern=r"^[a-zA-Z0-9_-]*$")
+    cloudinary_api_key: SecretStr = SecretStr("")
+    cloudinary_api_secret: SecretStr = SecretStr("")
 
     @model_validator(mode="after")
     def production_security(self):

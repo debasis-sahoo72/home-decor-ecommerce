@@ -32,6 +32,7 @@ async function mutate<T>(
     const data = await response.json().catch(() => null);
     throw new Error(data?.error?.message || "Please try again in a moment.");
   }
+  if (typeof window !== "undefined") window.dispatchEvent(new Event("shopping:changed"));
   return response.status === 204 ? (undefined as T) : response.json();
 }
 export type Delivery = {

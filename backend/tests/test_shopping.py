@@ -25,9 +25,10 @@ def add(client, variant, quantity=1, **changes):
 def serviceable(db):
     record = DeliveryPincode(
         pincode="560001",
-        service="next_day",
-        min_days=1,
-        max_days=1,
+        service="standard",
+        urban=True,
+        min_days=3,
+        max_days=5,
         cutoff_hour=12,
         fee=50,
         active=True,
@@ -114,8 +115,8 @@ def test_delivery_unknown_inactive_and_invalid(client, db, serviceable):
 def test_delivery_cutoff_uses_india_time(db, serviceable):
     before = delivery(db, "560001", datetime(2026, 9, 21, 6, 29, tzinfo=timezone.utc))
     after = delivery(db, "560001", datetime(2026, 9, 21, 6, 30, tzinfo=timezone.utc))
-    assert before["earliest"] == "2026-09-22"
-    assert after["earliest"] == "2026-09-23"
+    assert before["earliest"] == "2026-09-24"
+    assert after["earliest"] == "2026-09-25"
 
 
 def test_buy_now_revalidates_stock_and_delivery(client, db, item, serviceable):

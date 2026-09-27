@@ -1,6 +1,5 @@
 """Product-page purchase checks; carts do not reserve inventory."""
 
-from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from uuid import UUID
 
@@ -12,7 +11,6 @@ from app.models.entities import (
     Cart,
     CartItem,
     Category,
-    DeliveryPincode,
     Inventory,
     Product,
     ProductVariant,
@@ -20,6 +18,7 @@ from app.models.entities import (
     User,
 )
 from app.services.catalog import detail
+from app.services.delivery import quote as delivery
 
 
 def available_variant(db, variant_id, quantity):
@@ -237,31 +236,6 @@ def merge_guest_cart(db, token_hash, user_id):
     db.flush()
     db.delete(guest)
     db.commit()
-
-
-def delivery(db, pincode, now=None):
-    rule = db.scalar(
-        select(DeliveryPincode).where(
-            DeliveryPincode.pincode == pincode, DeliveryPincode.active.is_(True)
-        )
-    )
-    if rule is None:
-        return {
-            "pincode": pincode,
-            "serviceable": False,
-            "message": "Delivery is not currently available to this PIN code.",
-        }
-    india = timezone(timedelta(hours=5, minutes=30))
-    local = (now or datetime.now(india)).astimezone(india)
-    offset = 1 if local.hour >= rule.cutoff_hour else 0
-    return dict(
-        pincode=pincode,
-        serviceable=True,
-        fee=str(rule.fee),
-        earliest=(local.date() + timedelta(days=rule.min_days + offset)).isoformat(),
-        latest=(local.date() + timedelta(days=rule.max_days + offset)).isoformat(),
-        message="Estimated delivery, subject to stock and confirmation at checkout.",
-    )
 
 
 def purchase_preview(db, variant_id, quantity, pincode):

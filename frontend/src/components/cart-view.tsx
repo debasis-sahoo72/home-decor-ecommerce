@@ -320,16 +320,18 @@ export default function CartView() {
                 Review unavailable items before continuing.
               </p>
             )}
-            <button
-              className="button button-warm"
-              disabled
-              aria-describedby="checkout-note"
-            >
-              Checkout coming soon
-            </button>
+            {cart.stock_valid ? (
+              <Link className="button button-warm" href="/checkout">
+                Proceed to checkout
+              </Link>
+            ) : (
+              <button className="button button-warm" disabled>
+                Review unavailable items
+              </button>
+            )}
             <p id="checkout-note" className="muted cart-fine-print">
-              Checkout and payment will be added in the next phase. Prices and
-              availability are checked again before ordering.
+              Select your address at checkout. Prices, delivery and availability
+              are checked again before payment.
             </p>
           </aside>
         </div>

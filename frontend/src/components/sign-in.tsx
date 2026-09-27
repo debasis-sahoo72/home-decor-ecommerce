@@ -7,7 +7,7 @@ import { request } from "@/lib/shopping-client";
 export default function SignIn() {
   const router = useRouter();
   const { refresh } = useShopping();
-  const [user, setUser] = useState<{ name: string } | null>(null);
+  const [user, setUser] = useState<{ name: string; role: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [register, setRegister] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -37,6 +37,14 @@ export default function SignIn() {
         <>
           <p>Your bag and wishlist stay with your account across devices.</p>
           <div className="account-links">
+            <Link className="button button-secondary" href="/account/orders">
+              Your orders
+            </Link>
+            {user.role === "admin" && (
+              <Link className="button button-secondary" href="/admin">
+                Admin dashboard
+              </Link>
+            )}
             <Link className="button button-secondary" href="/account/addresses">
               Your addresses
             </Link>
@@ -93,9 +101,21 @@ export default function SignIn() {
                 await refresh();
                 router.push(
                   new URLSearchParams(window.location.search).get("next") ===
-                    "addresses"
-                    ? "/account/addresses"
-                    : "/cart",
+                    "orders"
+                    ? "/account/orders"
+                    : new URLSearchParams(window.location.search).get(
+                          "next",
+                        ) === "admin"
+                      ? "/admin"
+                      : new URLSearchParams(window.location.search).get(
+                            "next",
+                          ) === "addresses"
+                        ? "/account/addresses"
+                        : new URLSearchParams(window.location.search).get(
+                              "next",
+                            ) === "checkout"
+                          ? "/checkout"
+                          : "/cart",
                 );
                 router.refresh();
               } catch (e) {

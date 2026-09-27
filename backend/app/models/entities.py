@@ -113,7 +113,20 @@ class ProductImage(Record, Base):
     position: Mapped[int] = mapped_column(Integer, default=0)
     width: Mapped[int] = mapped_column(Integer)
     height: Mapped[int] = mapped_column(Integer)
+    cloud_name: Mapped[str | None] = mapped_column(String(100))
+    format: Mapped[str | None] = mapped_column(String(10))
+    byte_size: Mapped[int | None] = mapped_column(Integer)
     product: Mapped[Product] = relationship(back_populates="images")
+
+
+class MediaCleanup(Record, Base):
+    """Durable cleanup intent; no image bytes or credentials are stored."""
+    __tablename__ = "media_cleanup"
+    __table_args__ = (UniqueConstraint("cloud_name", "public_id"),)
+    cloud_name: Mapped[str] = mapped_column(String(100))
+    public_id: Mapped[str] = mapped_column(String(255))
+    not_before: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    attempts: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
 
 
 class ProductVariant(Record, Base):
@@ -185,7 +198,7 @@ class Order(Record, Base):
     __tablename__ = "orders"
     __table_args__ = (
         CheckConstraint(
-            "status IN ('awaiting_payment','paid','processing','shipped','delivered','cancelled')",
+            "status IN ('awaiting_payment','paid','processing','packed','shipped','out_for_delivery','delivered','cancelled','return_requested','returned','refunded')",
             name="status",
         ),
         CheckConstraint(
@@ -195,6 +208,9 @@ class Order(Record, Base):
         CheckConstraint("currency = 'INR'", name="currency"),
     )
     number: Mapped[str] = mapped_column(String(40), unique=True)
+    checkout_key: Mapped[str | None] = mapped_column(String(100), unique=True)
+    quote_hash: Mapped[str | None] = mapped_column(String(64))
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     user_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("users.id", ondelete="SET NULL"), index=True
     )
@@ -247,6 +263,7 @@ class Payment(Record, Base):
     provider_order_id: Mapped[str | None] = mapped_column(String(100), unique=True)
     provider_payment_id: Mapped[str | None] = mapped_column(String(100), unique=True)
     idempotency_key: Mapped[str] = mapped_column(String(100), unique=True)
+    initiation_started: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
     status: Mapped[str] = mapped_column(
         String(30), default="created", server_default="created", index=True
     )
@@ -283,7 +300,7 @@ class DeliveryPincode(Record, Base):
     __tablename__ = "delivery_pincodes"
     __table_args__ = (
         CheckConstraint("pincode ~ '^[0-9]{6}$'", name="pincode"),
-        CheckConstraint("service IN ('next_day','standard')", name="service"),
+        CheckConstraint("service = 'standard'", name="service"),
         CheckConstraint(
             "min_days >= 1 AND max_days >= min_days AND fee >= 0 AND cutoff_hour BETWEEN 0 AND 23",
             name="delivery",
@@ -296,6 +313,7 @@ class DeliveryPincode(Record, Base):
     cutoff_hour: Mapped[int] = mapped_column(Integer, default=12)
     fee: Mapped[Decimal] = mapped_column(Numeric(12, 2))
     active: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+    urban: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
 
 
 class Review(Record, Base):
@@ -328,6 +346,8 @@ class AuthRateBucket(Base):
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
 
 
+Index("ix_orders_owner_created", Order.user_id, Order.created_at, Order.id)
+Index("ix_orders_status_created", Order.status, Order.created_at)
 Index(
     "ix_products_public_created",
     Product.created_at,

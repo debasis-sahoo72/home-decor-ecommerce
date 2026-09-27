@@ -1,14 +1,14 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, Response
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import require_admin, session_csrf
 from app.core.errors import AppError
 from app.db import get_session
-from app.models.entities import Category, Inventory, Product, ProductImage, ProductVariant
+from app.models.entities import Category, Inventory, Product, ProductVariant
 from app.schemas.catalog import (
     CatalogQuery,
     CategoryWrite,
@@ -137,21 +137,20 @@ def stock(variant_id: UUID, data: StockWrite, db: Session = Depends(get_session)
 
 @router.post("/admin/products/{product_id}/images", dependencies=admin, status_code=201)
 def image(product_id: UUID, data: ImageWrite, db: Session = Depends(get_session)):
-    catalog.get_record(db, Product, product_id)
-    record = catalog.save(db, ProductImage(product_id=product_id, **data.model_dump(mode="json")))
-    return {"id": str(record.id)}
+    raise AppError(410, "use_media_upload", "Use the validated product media upload endpoint.")
 
 
 @router.put("/admin/images/{image_id}", dependencies=admin)
 def update_image(image_id: UUID, data: ImageWrite, db: Session = Depends(get_session)):
-    record = catalog.get_record(db, ProductImage, image_id)
-    for key, value in data.model_dump(mode="json").items():
-        setattr(record, key, value)
-    return {"id": str(catalog.save(db, record).id)}
+    raise AppError(
+        410,
+        "use_media_editor",
+        "Use the product media editor to replace, describe or order images.",
+    )
 
 
 @router.delete("/admin/images/{image_id}", dependencies=admin, status_code=204)
 def delete_image(image_id: UUID, db: Session = Depends(get_session)):
-    db.delete(catalog.get_record(db, ProductImage, image_id))
-    db.commit()
-    return Response(status_code=204)
+    raise AppError(
+        410, "use_media_editor", "Use the product media delete endpoint for managed cleanup."
+    )

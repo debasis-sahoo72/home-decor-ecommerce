@@ -55,12 +55,8 @@ export default function ProductPurchase({ product: p }: { product: Product }) {
           quantity: qty,
           pincode,
         });
-        const query = new URLSearchParams({
-          variant_id: v.id,
-          quantity: String(qty),
-          pincode,
-        });
-        router.push(`/checkout?${query}`);
+        await request("/cart/items", { variant_id: v.id, quantity: qty });
+        router.push("/checkout");
       } else {
         await request("/cart/items", { variant_id: v.id, quantity: qty });
         setMessage("Added to your bag.");

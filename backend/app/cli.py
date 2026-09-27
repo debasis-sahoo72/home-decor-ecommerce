@@ -14,8 +14,57 @@ from app.schemas.auth import Registration
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", choices=["create-admin", "cleanup-auth"])
+    parser.add_argument(
+        "command", choices=["create-admin", "cleanup-auth", "reconcile-checkout", "cleanup-media"]
+    )
     args = parser.parse_args()
+    if args.command == "cleanup-media":
+        from app.config import get_settings
+        from app.services.media import Cloudinary, cleanup
+
+        with SessionLocal() as db:
+            print(cleanup(db, Cloudinary(get_settings())))
+        return
+    if args.command == "reconcile-checkout":
+        from app.config import get_settings
+        from app.models.entities import Order
+        from app.services import checkout
+        from app.services.payment_provider import Razorpay
+
+        provider = Razorpay(get_settings())
+        with SessionLocal() as db:
+            owners = list(
+                db.scalars(
+                    select(Order.user_id)
+                    .where(
+                        Order.status == "awaiting_payment",
+                        Order.checkout_key.is_not(None),
+                        Order.user_id.is_not(None),
+                    )
+                    .distinct()
+                )
+            )
+        for user_id in owners:
+            with SessionLocal() as db:
+                try:
+                    order = checkout.pending(db, user_id)
+                    db.commit()
+                    if order:
+                        payment = checkout.payment_for(db, order)
+                        if payment.provider_order_id:
+                            result = checkout.confirm(db, user_id, order.id, provider)
+                            print(f"{order.number}: {result['status']}")
+                        elif payment.initiation_started:
+                            print(
+                                f"{order.number}: provider creation outcome requires manual reconciliation"
+                            )
+                except Exception:
+                    db.rollback()
+                    print(
+                        "A pending checkout could not be reconciled; retry and inspect provider status."
+                    )
+        print("Checkout reconciliation complete. Started payments retain stock until reconciled.")
+        return
     if args.command == "cleanup-auth":
         with SessionLocal.begin() as db:
             db.execute(delete(AuthSession).where(AuthSession.expires_at <= datetime.now(UTC)))

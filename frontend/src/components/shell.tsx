@@ -1,7 +1,30 @@
+"use client";
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
 import Icon from "./icon";
 import Brand from "./brand";
+import { useShopping } from "./shopping-provider";
 export function Header() {
+  const { ids } = useShopping();
+  const [cartCount, setCartCount] = useState(0);
+  const refreshCart = useCallback(async () => {
+    try {
+      const response = await fetch("/api/v1/cart", { cache: "no-store" });
+      if (response.ok) setCartCount((await response.json()).item_count || 0);
+    } catch { /* Header counts are progressive enhancement. */ }
+  }, []);
+  useEffect(() => {
+    // Header state is synchronized with the external cart API after mount.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void refreshCart();
+    const update = () => void refreshCart();
+    window.addEventListener("shopping:changed", update);
+    window.addEventListener("focus", update);
+    return () => {
+      window.removeEventListener("shopping:changed", update);
+      window.removeEventListener("focus", update);
+    };
+  }, [refreshCart]);
   return (
     <>
       <div className="announcement">
@@ -31,13 +54,15 @@ export function Header() {
               <Icon name="user" />
               <span>Account</span>
             </Link>
-            <Link href="/wishlist" aria-label="Saved pieces">
+            <Link href="/wishlist" aria-label={`Saved pieces${ids.length ? `, ${ids.length} item${ids.length === 1 ? "" : "s"}` : ""}`} className="header-count-link">
               <Icon name="heart" />
               <span>Wishlist</span>
+              {ids.length > 0 && <b className="header-count" aria-label={`${ids.length} saved`}>{ids.length}</b>}
             </Link>
-            <Link href="/cart" aria-label="Shopping bag">
+            <Link href="/cart" aria-label={`Shopping bag${cartCount ? `, ${cartCount} item${cartCount === 1 ? "" : "s"}` : ""}`} className="header-count-link">
               <Icon name="bag" />
               <span>Bag</span>
+              {cartCount > 0 && <b className="header-count" aria-label={`${cartCount} in bag`}>{cartCount}</b>}
             </Link>
           </div>
         </div>

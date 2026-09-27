@@ -123,6 +123,7 @@ export function ShoppingProvider({ children }: { children: React.ReactNode }) {
         );
       }
       setIds(saved ? ids.filter((v) => v !== id) : [...new Set([...ids, id])]);
+      window.dispatchEvent(new Event("shopping:changed"));
       setError("");
     } catch (e) {
       const message =

@@ -1,6 +1,6 @@
 # Home Decor Store
 
-Phases 01–11 include architecture, setup, design tokens, PostgreSQL models/migrations, customer/admin authentication, catalog APIs, a responsive storefront, and the product detail page with stock-checked bag actions and delivery checks. Full checkout, payments and public deployment are later phases. See [catalog and storefront](docs/catalog-and-storefront.md) and [product detail](docs/product-detail.md) for endpoints, data setup and validation.
+The project includes architecture, setup, authentication, catalog and product pages, persistent carts and wishlists, addresses, standard-delivery checks, checkout, customer order tracking and an initial admin dashboard. See [order management and administration](docs/order-management.md), [delivery and checkout](docs/delivery-and-checkout.md), [catalog and storefront](docs/catalog-and-storefront.md) and [product detail](docs/product-detail.md). Razorpay finalization and public deployment remain later phases; pending orders can be saved without enabling payments.
 
 Local project folder: `C:\Users\sonal\Projects\home-decor-ecommerce` (outside OneDrive).
 
@@ -21,6 +21,7 @@ demo products before migrating a development database into production.
 - [Design system](docs/design-system.md): 21 design areas and Tailwind tokens.
 - [Database](docs/database.md): relationships, ER diagram, constraints, states and seeds.
 - [Authentication](docs/authentication.md): API sequence, security and limitations.
+- [Cloudinary media](docs/cloudinary-media.md): secure uploads, image ordering, replacement and cleanup setup.
 - [File guide](docs/file-guide.md): file responsibilities.
 - [Verification](docs/verification.md): checks actually performed.
 
@@ -135,3 +136,6 @@ Persistent guest/account carts, server totals, stock checks and account wishlist
 ## Customer addresses
 
 Signed-in customers can manage delivery addresses at `/account/addresses`. See [address management](docs/address-management.md) for validation, default rules and secure ownership checks.
+# Delivery and checkout (prompts 15–16)
+
+The storefront checkout is available at `/checkout`. See [delivery and checkout setup](docs/delivery-and-checkout.md) for the standard urban-PIN allowlist, Razorpay test settings, migration 0005, and payment reconciliation. No PIN is enabled by guessing coverage; provide verified urban entries through the protected admin delivery API. Missing payment keys keep the payment action disabled while retaining address and order-review functionality.

@@ -187,7 +187,9 @@ def listing(db, query):
         .join(ProductVariant, ProductVariant.id == OrderItem.variant_id)
         .where(
             ProductVariant.product_id == Product.id,
-            Order.status.in_(["paid", "processing", "shipped", "delivered"]),
+            Order.status.in_(
+                ["paid", "processing", "packed", "shipped", "out_for_delivery", "delivered"]
+            ),
         )
         .correlate(Product)
         .scalar_subquery()

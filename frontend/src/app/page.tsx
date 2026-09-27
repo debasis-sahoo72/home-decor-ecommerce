@@ -17,10 +17,11 @@ export default async function Home() {
     <>
       <section className="premium-hero">
         <Image
-          src="/demo/hero.png"
+          src="/demo/hero.png?v=20260923"
           alt="Ivory vases with olive branches on an oak console in a sunlit neutral home"
           fill
           preload
+          loading="eager"
           sizes="100vw"
         />
         <div className="wrap hero-content">
@@ -144,7 +145,7 @@ export default async function Home() {
       </section>
       <section className="collection-banner wrap">
         <Image
-          src="/demo/hero.png"
+          src="/demo/hero.png?v=20260923"
           alt="Warm oak, natural textures and sculptural vases for a considered home"
           fill
           sizes="90vw"

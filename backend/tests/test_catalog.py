@@ -227,8 +227,7 @@ def test_images(client, item, admin_headers):
         "height": 1000,
     }
     r = client.post(path, json=data, headers=admin_headers)
-    assert r.status_code == 201, r.text
-    assert client.post(path, json=data, headers=admin_headers).status_code == 409
+    assert r.status_code == 410, r.text
     assert (
         client.post(
             path, json=data | {"url": "http://localhost/private"}, headers=admin_headers
@@ -237,16 +236,16 @@ def test_images(client, item, admin_headers):
     )
     assert (
         client.put(
-            f"/api/v1/admin/images/{r.json()['id']}",
+            f"/api/v1/admin/images/{uuid4()}",
             json=data | {"alt": "Updated alt"},
             headers=admin_headers,
         ).status_code
-        == 200
+        == 410
     )
-    assert client.get(f"/api/v1/products/{p.id}").json()["images"][0]["alt"] == "Updated alt"
+    assert client.get(f"/api/v1/products/{p.id}").json()["images"] == []
     assert (
-        client.delete(f"/api/v1/admin/images/{r.json()['id']}", headers=admin_headers).status_code
-        == 204
+        client.delete(f"/api/v1/admin/images/{uuid4()}", headers=admin_headers).status_code
+        == 410
     )
 
 
