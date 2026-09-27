@@ -4,7 +4,8 @@ import { api, Category, ProductPage } from "@/lib/catalog";
 import { imageSource } from "@/lib/media";
 import ProductGrid from "@/components/product-grid";
 import Icon from "@/components/icon";
-export const metadata = { alternates: { canonical: "/" } };
+import { publicMetadata } from "@/lib/seo";
+export const metadata = publicMetadata({ title: "Home decor for beautiful everyday living", path: "/" });
 export default async function Home() {
   const [categories, arrivals, featured] = await Promise.allSettled([
     api<Category[]>("/categories"),

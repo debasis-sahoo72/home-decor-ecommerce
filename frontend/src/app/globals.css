@@ -1027,6 +1027,33 @@ h3 {
 .review-card span {
   color: var(--color-brand);
 }
+.review-form {
+  display: grid;
+  gap: 12px;
+  padding: 24px;
+  margin-block: 24px;
+  background: #fffdf8;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+}
+.review-form select,
+.review-form textarea {
+  width: 100%;
+  min-width: 0;
+  font: inherit;
+  padding: 12px;
+  border: 1px solid var(--color-input-border);
+  border-radius: 4px;
+  background: white;
+}
+.review-form textarea { resize: vertical; }
+.review-form .button {
+  justify-self: start;
+  padding: 12px 24px;
+  color: white;
+  background: var(--color-brand);
+}
+.review-form .button:disabled { opacity: 0.6; cursor: wait; }
 /* Existing saved, bag and purchase preview pages inherit the storefront. */
 .bag-item {
   padding: 25px;

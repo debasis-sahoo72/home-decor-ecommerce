@@ -160,7 +160,7 @@ export default function SignIn() {
             </label>
             {register && (
               <p id="password-help" className="muted">
-                Use a passphrase of 15–128 characters with at least 5 different
+                Use a passphrase of 10–128 characters with at least 5 different
                 characters.
               </p>
             )}

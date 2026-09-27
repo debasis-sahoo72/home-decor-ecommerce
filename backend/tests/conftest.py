@@ -44,7 +44,20 @@ def db(pg_engine):
 
 @pytest.fixture
 def client(db, pg_engine):
-    app = create_app(Settings(app_env="test", auth_ip_limit=100), pg_engine)
+    # Never inherit live media/payment credentials from the developer's .env.
+    app = create_app(
+        Settings(
+            app_env="test",
+            auth_ip_limit=100,
+            cloudinary_cloud_name="",
+            cloudinary_api_key="",
+            cloudinary_api_secret="",
+            razorpay_key_id="",
+            razorpay_key_secret="",
+            razorpay_webhook_secret="",
+        ),
+        pg_engine,
+    )
     app.dependency_overrides[get_session] = lambda: db
     with TestClient(
         app, base_url="http://127.0.0.1:3000", headers={"Origin": "http://127.0.0.1:3000"}

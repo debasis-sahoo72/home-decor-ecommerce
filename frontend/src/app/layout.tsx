@@ -2,18 +2,18 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ShoppingProvider } from "@/components/shopping-provider";
 import { Header, Footer } from "@/components/shell";
+import { siteSettings, defaultDescription } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.SITE_URL || "http://127.0.0.1:3000"),
+  metadataBase: new URL(siteSettings().origin),
   title: {
     default: "Your Sanctuary | Beautiful spaces. Happier living.",
     template: "%s | Your Sanctuary",
   },
   icons: { icon: "/brand/ys-monogram.png" },
   applicationName: "Your Sanctuary",
-  description:
-    "Explore warm textures, considered lighting and beautiful everyday objects for your home.",
-  robots: { index: process.env.SITE_INDEXABLE === "true", follow: true },
+  description: defaultDescription,
+  robots: { index: siteSettings().indexable, follow: true },
 };
 
 export default function RootLayout({

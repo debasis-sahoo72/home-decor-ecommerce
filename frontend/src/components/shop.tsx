@@ -5,6 +5,7 @@ import { api, ApiError, Category, ProductPage } from "@/lib/catalog";
 import ProductGrid from "./product-grid";
 import CatalogUnavailable from "./catalog-unavailable";
 import ResponsiveFilters from "./responsive-filters";
+import { notFound } from "next/navigation";
 export type Search = Record<string, string | string[] | undefined>;
 const allowed = [
   "q",
@@ -57,6 +58,7 @@ export default async function Shop({
     return <CatalogUnavailable />;
   }
   const path = category ? `/categories/${category.slug}` : "/shop";
+  if (result.page > 1 && result.page > result.pages) notFound();
   const pageLink = (page: number) => {
     const next = new URLSearchParams(params);
     next.set("page", String(page));
@@ -75,10 +77,10 @@ export default async function Shop({
           />
         )}
         <div className="wrap shop-intro">
-          <div className="breadcrumbs">
+          <nav className="breadcrumbs" aria-label="Breadcrumb">
             <Link href="/">Home</Link> / <Link href="/shop">Shop</Link>
             {category && ` / ${category.name}`}
-          </div>
+          </nav>
           <p className="eyebrow">Find something that feels like you</p>
           <h1>
             {category?.name ||

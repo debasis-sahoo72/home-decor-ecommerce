@@ -5,7 +5,9 @@ import { productJsonLd, serializeJsonLd } from "@/lib/product-seo";
 import ProductGallery from "@/components/product-gallery";
 import ProductPurchase from "@/components/product-purchase";
 import ProductGrid from "@/components/product-grid";
+import ProductReviewForm from "@/components/product-review-form";
 import { imageSource, isDemo, productName } from "@/lib/media";
+import { breadcrumbJsonLd, publicMetadata, siteSettings } from "@/lib/seo";
 type Reviews = {
   items: {
     id: string;
@@ -35,23 +37,11 @@ export async function generateMetadata({
 }) {
   const p = await getProduct((await params).slug);
   const title = p.seo_title || p.name;
-  const description = p.seo_description || p.description.slice(0, 160);
-  return {
-    title,
-    description,
-    alternates: { canonical: `/product/${p.slug}` },
-    openGraph: {
-      title,
-      description,
-      url: `/product/${p.slug}`,
-      images: p.images
-        .slice(0, 1)
-        .map((i) => ({ url: imageSource(i.url), alt: i.alt || p.name })),
-    },
-    ...((await searchParams).reviews
-      ? { robots: { index: false, follow: true } }
-      : {}),
-  };
+  const description = p.seo_description || p.description.slice(0, 160) || `Explore ${p.name} at Your Sanctuary.`;
+  return publicMetadata({ title, description, path: `/product/${p.slug}`,
+    ...(p.images.length ? { images: p.images.slice(0, 1).map((i) => ({ url: imageSource(i.url), alt: i.alt || p.name })) } : {}),
+    noindex: isDemo(p.name) || Boolean((await searchParams).reviews),
+  });
 }
 export default async function Page({
   params,
@@ -75,16 +65,22 @@ export default async function Page({
       : [];
   return (
     <>
-      <script
+      {!isDemo(p.name) && <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: serializeJsonLd(
-            productJsonLd(p, process.env.SITE_URL || "http://127.0.0.1:3000"),
+            productJsonLd(p, siteSettings().origin),
           ),
         }}
-      />
+      />}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd([
+        { name: "Home", path: "/" }, { name: "Shop", path: "/shop" },
+        { name: p.category.name, path: `/categories/${p.category.slug}` },
+        { name: productName(p.name), path: `/product/${p.slug}` },
+      ], siteSettings().origin)) }} />
       <section className="wrap pdp">
         <nav className="breadcrumbs" aria-label="Breadcrumb">
+          <Link href="/">Home</Link> /{" "}
           <Link href="/shop">Shop</Link> /{" "}
           <Link href={`/categories/${p.category.slug}`}>{p.category.name}</Link>{" "}
           / <span>{productName(p.name)}</span>
@@ -136,6 +132,7 @@ export default async function Page({
         <section id="reviews" className="reviews-section">
           <p className="eyebrow">In your words</p>
           <h2>Customer reviews</h2>
+          <ProductReviewForm productId={p.id} />
           {reviews.status === "rejected" ? (
             <p>Reviews could not be loaded. Please refresh to try again.</p>
           ) : (

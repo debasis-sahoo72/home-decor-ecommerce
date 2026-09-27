@@ -4,13 +4,45 @@ from fastapi import APIRouter, Depends, Query, Request, Response
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session
 
-from app.api.dependencies import current_identity, public_csrf, session_csrf
+from app.api.dependencies import current_identity, current_user, public_csrf, session_csrf
 from app.core.security import digest, preauth_token, valid_preauth
 from app.db import get_session
+from app.services import reviews as review_service
 from app.services import shopping
 
 router = APIRouter(tags=["product shopping"])
 AGE = 30 * 24 * 60 * 60
+
+
+class ReviewInput(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    rating: int = Field(ge=1, le=5, strict=True)
+    body: str = Field(min_length=10, max_length=2000)
+
+
+@router.get("/products/{product_id}/review-eligibility")
+def review_eligibility(
+    product_id: UUID,
+    response: Response,
+    user=Depends(current_user),
+    db: Session = Depends(get_session),
+):
+    response.headers["Cache-Control"] = "no-store"
+    return review_service.eligibility(db, user, product_id)
+
+
+@router.post(
+    "/products/{product_id}/reviews", status_code=201, dependencies=[Depends(session_csrf)]
+)
+def submit_review(
+    product_id: UUID,
+    data: ReviewInput,
+    response: Response,
+    user=Depends(current_user),
+    db: Session = Depends(get_session),
+):
+    response.headers["Cache-Control"] = "no-store"
+    return review_service.create(db, user, product_id, data)
 
 
 class CartInput(BaseModel):

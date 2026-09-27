@@ -139,7 +139,7 @@ def create_app(settings: Settings | None = None, database_engine=None) -> FastAP
                 "/api/v1/orders",
                 "/api/v1/admin",
             )
-        ):
+        ) or request.url.path.endswith("/review-eligibility"):
             response.headers["Cache-Control"] = "no-store"
         logger.info(
             json.dumps(
