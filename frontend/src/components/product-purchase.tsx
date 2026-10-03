@@ -116,12 +116,14 @@ export default function ProductPurchase({ product: p }: { product: Product }) {
           max={Math.min(100, v.available_stock) || 1}
           step="1"
           value={quantity}
+          aria-invalid={v.in_stock && !valid}
+          aria-describedby={v.in_stock && !valid ? "quantity-error" : undefined}
           disabled={!v.in_stock || busy}
           onChange={(e) => setQuantity(e.target.value)}
         />
       </label>
       {v.in_stock && !valid && (
-        <p className="field-error">
+        <p id="quantity-error" className="field-error" role="alert">
           Choose between 1 and {Math.min(100, v.available_stock)} items.
         </p>
       )}

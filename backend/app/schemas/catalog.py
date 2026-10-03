@@ -28,7 +28,6 @@ class ProductWrite(Input):
     description: str = Field(default="", max_length=8000)
     specifications: dict[str, str] = Field(default_factory=dict, max_length=30)
     active: bool = True
-    featured: bool = False
     seo_title: str | None = Field(default=None, max_length=70)
     seo_description: str | None = Field(default=None, max_length=160)
 
@@ -84,7 +83,7 @@ class CatalogQuery(Input):
     min_price: Money | None = None
     max_price: Money | None = None
     in_stock: bool = False
-    featured: bool = False
+    on_sale: bool = False
     sort: Literal["newest", "price_asc", "price_desc", "name", "best_sellers"] = "newest"
     page: int = Field(default=1, ge=1, le=10000)
     page_size: int = Field(default=12, ge=1, le=48)

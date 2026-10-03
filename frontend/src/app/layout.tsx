@@ -27,7 +27,7 @@ export default function RootLayout({
         </a>
         <ShoppingProvider>
           <Header />
-          <main id="main">{children}</main>
+          <main id="main" tabIndex={-1}>{children}</main>
           <Footer />
         </ShoppingProvider>
       </body>

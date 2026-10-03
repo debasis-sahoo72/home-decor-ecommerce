@@ -17,6 +17,8 @@ from app.main import create_app
 def pg_engine():
     url = os.environ.get("TEST_DATABASE_URL")
     if not url:
+        if os.environ.get("CI", "").lower() in {"true", "1"}:
+            pytest.fail("CI requires TEST_DATABASE_URL; database tests must not silently skip")
         pytest.skip("Set TEST_DATABASE_URL to a disposable PostgreSQL database ending in _test")
     parsed = make_url(url)
     if parsed.get_backend_name() != "postgresql" or not parsed.database.endswith("_test"):
@@ -55,10 +57,13 @@ def client(db, pg_engine):
             razorpay_key_id="",
             razorpay_key_secret="",
             razorpay_webhook_secret="",
+            email_notifications_enabled=False,
+            whatsapp_notifications_enabled=False,
         ),
         pg_engine,
     )
     app.dependency_overrides[get_session] = lambda: db
+    db.info["settings"] = app.state.settings
     with TestClient(
         app, base_url="http://127.0.0.1:3000", headers={"Origin": "http://127.0.0.1:3000"}
     ) as client:

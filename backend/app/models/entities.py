@@ -43,6 +43,27 @@ class User(Record, Base):
     role: Mapped[str] = mapped_column(String(20), default="customer", server_default="customer")
     status: Mapped[str] = mapped_column(String(20), default="active", server_default="active")
     addresses: Mapped[list["Address"]] = relationship(back_populates="user")
+    whatsapp_phone: Mapped[str | None] = mapped_column(String(16))
+    whatsapp_opted_in_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class Notification(Record, Base):
+    __tablename__ = "notifications"
+    __table_args__ = (
+        UniqueConstraint("event_key", "channel"),
+        CheckConstraint("channel IN ('email','whatsapp')", name="channel"),
+        CheckConstraint("status IN ('pending','sending','accepted','failed','unknown','skipped')", name="status"),
+    )
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    order_id: Mapped[UUID | None] = mapped_column(ForeignKey("orders.id"), index=True)
+    event_key: Mapped[str] = mapped_column(String(150))
+    event: Mapped[str] = mapped_column(String(40))
+    channel: Mapped[str] = mapped_column(String(10))
+    status: Mapped[str] = mapped_column(String(12), default="pending", index=True)
+    attempts: Mapped[int] = mapped_column(Integer, default=0)
+    provider_id: Mapped[str | None] = mapped_column(String(200))
+    error_code: Mapped[str | None] = mapped_column(String(40))
+    consent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class Address(Record, Base):
@@ -88,7 +109,6 @@ class Product(Record, Base):
     description: Mapped[str] = mapped_column(Text, default="")
     specifications: Mapped[dict] = mapped_column(JSONB, default=dict, server_default="{}")
     active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
-    featured: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
     seo_title: Mapped[str | None] = mapped_column(String(70))
     seo_description: Mapped[str | None] = mapped_column(String(160))
     archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), index=True)

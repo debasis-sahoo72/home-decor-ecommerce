@@ -30,7 +30,6 @@ type Product = {
   description: string;
   category: Category;
   active: boolean;
-  featured: boolean;
   seo_title: string | null;
   seo_description: string | null;
   specifications: Record<string, string>;
@@ -362,7 +361,6 @@ export default function AdminPanel({ section }: { section: string }) {
                       {
                         ...body,
                         category_id: text(f, "category_id"),
-                        featured: f.has("featured"),
                         specifications: specs,
                       },
                       product ? "PUT" : "POST",
@@ -443,13 +441,6 @@ export default function AdminPanel({ section }: { section: string }) {
                 label="Active"
                 value={product?.active ?? category?.active ?? false}
               />
-              {section === "products" && (
-                <Check
-                  name="featured"
-                  label="Featured collection"
-                  value={product?.featured}
-                />
-              )}
               <div className="wide">
                 <button className="button button-primary" disabled={busy}>
                   {busy ? "Saving…" : "Save"}
@@ -679,15 +670,15 @@ export default function AdminPanel({ section }: { section: string }) {
             </>
           )}
           {section === "products" && (
-            <div className="ops-table-wrap">
+            <div className="ops-table-wrap" role="region" tabIndex={0} aria-label={`${section} table, scroll horizontally for more columns`}>
               <table className="ops-table">
                 <thead>
                   <tr>
-                    <th>Product</th>
-                    <th>Category</th>
-                    <th>SKUs</th>
-                    <th>Status</th>
-                    <th>Action</th>
+                    <th scope="col">Product</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">SKUs</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -718,14 +709,14 @@ export default function AdminPanel({ section }: { section: string }) {
             </div>
           )}
           {section === "categories" && (
-            <div className="ops-table-wrap">
+            <div className="ops-table-wrap" role="region" tabIndex={0} aria-label={`${section} table, scroll horizontally for more columns`}>
               <table className="ops-table">
                 <thead>
                   <tr>
-                    <th>Category</th>
-                    <th>Slug</th>
-                    <th>Status</th>
-                    <th>Action</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Slug</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -752,14 +743,14 @@ export default function AdminPanel({ section }: { section: string }) {
             </div>
           )}
           {section === "inventory" && (
-            <div className="ops-table-wrap">
+            <div className="ops-table-wrap" role="region" tabIndex={0} aria-label={`${section} table, scroll horizontally for more columns`}>
               <table className="ops-table">
                 <thead>
                   <tr>
-                    <th>Product / SKU</th>
-                    <th>Reserved</th>
-                    <th>Available</th>
-                    <th>On hand</th>
+                    <th scope="col">Product / SKU</th>
+                    <th scope="col">Reserved</th>
+                    <th scope="col">Available</th>
+                    <th scope="col">On hand</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -808,14 +799,14 @@ export default function AdminPanel({ section }: { section: string }) {
             </div>
           )}
           {section === "customers" && (
-            <div className="ops-table-wrap">
+            <div className="ops-table-wrap" role="region" tabIndex={0} aria-label={`${section} table, scroll horizontally for more columns`}>
               <table className="ops-table">
                 <thead>
                   <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Status</th>
-                    <th>Joined</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Joined</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -832,15 +823,15 @@ export default function AdminPanel({ section }: { section: string }) {
             </div>
           )}
           {section === "delivery" && (
-            <div className="ops-table-wrap">
+            <div className="ops-table-wrap" role="region" tabIndex={0} aria-label={`${section} table, scroll horizontally for more columns`}>
               <table className="ops-table">
                 <thead>
                   <tr>
-                    <th>PIN</th>
-                    <th>Standard estimate</th>
-                    <th>Fee</th>
-                    <th>Coverage</th>
-                    <th>Action</th>
+                    <th scope="col">PIN</th>
+                    <th scope="col">Standard estimate</th>
+                    <th scope="col">Fee</th>
+                    <th scope="col">Coverage</th>
+                    <th scope="col">Action</th>
                   </tr>
                 </thead>
                 <tbody>

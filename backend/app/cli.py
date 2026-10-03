@@ -28,7 +28,7 @@ def main():
     if args.command == "reconcile-checkout":
         from app.config import get_settings
         from app.models.entities import Order
-        from app.services import checkout
+        from app.services import checkout, notifications
         from app.services.payment_provider import Razorpay
 
         provider = Razorpay(get_settings())
@@ -49,6 +49,7 @@ def main():
                 try:
                     order = checkout.pending(db, user_id)
                     db.commit()
+                    notifications.dispatch(db)
                     if order:
                         payment = checkout.payment_for(db, order)
                         if payment.provider_order_id:

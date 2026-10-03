@@ -119,6 +119,7 @@ def view(db, order):
 
 
 def release(db, order, reason, actor="checkout"):
+    from app.services import notifications
     for item in sorted(order.items, key=lambda i: str(i.variant_id)):
         stock = db.scalar(
             select(Inventory).where(Inventory.variant_id == item.variant_id).with_for_update()
@@ -127,6 +128,7 @@ def release(db, order, reason, actor="checkout"):
     audit(db, actor, reason)
     order.status = "cancelled"
     db.flush()
+    notifications.order_event(db, order)
 
 
 def pending(db, user_id):
@@ -224,6 +226,9 @@ def create(db, user_id, address_id, key, quote_hash, provider, require_payment=T
     db.add(payment)
     db.flush()
     db.commit()
+    from app.services import notifications
+
+    notifications.dispatch(db)
     return view(db, order)
 
 
@@ -235,6 +240,9 @@ def initiate(db, user_id, order_id, provider):
     if not payment.initiation_started and order.expires_at <= datetime.now(timezone.utc):
         release(db, order, "Checkout expired before payment")
         db.commit()
+        from app.services import notifications
+
+        notifications.dispatch(db)
         raise AppError(409, "checkout_expired", "Checkout expired. Review your bag again.")
     if not provider.enabled:
         raise AppError(503, "payment_unavailable", "Payment is temporarily unavailable.")
@@ -315,7 +323,11 @@ def confirm(db, user_id, order_id, provider):
     payment.provider_payment_id = captured["id"]
     payment.status = "captured"
     order.status = "paid"
+    from app.services import notifications
+
+    notifications.order_event(db, order)
     db.commit()
+    notifications.dispatch(db)
     return view(db, order)
 
 
@@ -331,4 +343,7 @@ def cancel(db, user_id, order_id):
         )
     release(db, order, "Customer cancelled before payment initiation")
     db.commit()
+    from app.services import notifications
+
+    notifications.dispatch(db)
     return view(db, order)

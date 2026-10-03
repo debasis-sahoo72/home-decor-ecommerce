@@ -10,12 +10,12 @@ from app.db import SessionLocal
 from app.models.entities import Category, Inventory, Product, ProductImage, ProductVariant
 
 DEMO_ITEMS = [
-    ("ceramic-vase", "Ceramic Vase", "decor-objects", "Decor objects", "1290", "1590", True),
-    ("woven-basket", "Woven Storage Basket", "decor-objects", "Decor objects", "1890", None, False),
-    ("linen-cushion", "Linen Cushion", "textiles", "Textiles", "890", "1190", True),
-    ("cotton-throw", "Cotton Throw", "textiles", "Textiles", "2190", None, False),
-    ("table-lamp", "Warm Table Lamp", "lighting", "Lighting", "3490", "3990", True),
-    ("pendant-light", "Pendant Light", "lighting", "Lighting", "4290", None, False),
+    ("ceramic-vase", "Ceramic Vase", "decor-objects", "Decor objects", "1290", "1590"),
+    ("woven-basket", "Woven Storage Basket", "decor-objects", "Decor objects", "1890", None),
+    ("linen-cushion", "Linen Cushion", "textiles", "Textiles", "890", "1190"),
+    ("cotton-throw", "Cotton Throw", "textiles", "Textiles", "2190", None),
+    ("table-lamp", "Warm Table Lamp", "lighting", "Lighting", "3490", "3990"),
+    ("pendant-light", "Pendant Light", "lighting", "Lighting", "4290", None),
 ]
 DETAILS = {
     "ceramic-vase": (
@@ -71,7 +71,7 @@ VIEWS = [
 
 def seed_demo(db):
     created = 0
-    for slug, name, category_slug, category_name, price, compare, featured in DEMO_ITEMS:
+    for slug, name, category_slug, category_name, price, compare in DEMO_ITEMS:
         product = db.scalar(select(Product).where(Product.slug == "demo-" + slug))
         # Never overwrite a real product that happens to use the same slug.
         if product is not None and (
@@ -88,7 +88,6 @@ def seed_demo(db):
                 category=category,
                 name=f"[DEMO] {name}",
                 slug="demo-" + slug,
-                featured=featured,
                 active=True,
             )
             variant = ProductVariant(

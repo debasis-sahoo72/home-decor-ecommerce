@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./tokens.css";
+@import "./accessibility.css";
 * {
   box-sizing: border-box;
 }
@@ -199,7 +200,7 @@ h3 {
   color: var(--color-accent);
 }
 .header-count-link { position: relative; }
-.header-count { position: absolute; top: -0.45rem; right: -0.55rem; min-width: 1.1rem; height: 1.1rem; padding: 0 .25rem; border-radius: 999px; display: grid; place-items: center; background: #b87942; color: #fff; font-size: .65rem; line-height: 1; font-weight: 700; }
+.header-count { position: absolute; top: -0.45rem; right: -0.55rem; min-width: 1.1rem; height: 1.1rem; padding: 0 .25rem; border-radius: 999px; display: grid; place-items: center; background: var(--color-brand); color: #fff; font-size: .65rem; line-height: 1; font-weight: 700; }
 .store-nav {
   display: flex;
   gap: 34px;
@@ -228,7 +229,7 @@ h3 {
 .store-nav a:focus-visible:after {
   transform: scaleX(1);
 }
-.edit-link {
+.offers-link {
   color: var(--color-accent);
   font-style: italic;
 }

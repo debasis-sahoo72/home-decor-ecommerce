@@ -5,7 +5,7 @@ from sqlalchemy.orm import selectinload
 
 from app.core.errors import AppError
 from app.models.entities import Inventory, Order, OrderStatusEvent, Payment, User
-from app.services import addresses, checkout
+from app.services import addresses, checkout, notifications
 from app.services.delivery import INDIA
 from app.services.shopping import money
 
@@ -191,6 +191,7 @@ def transition(db, order_id, expected, target, reason, actor):
             if order.checkout_key:
                 checkout.release(db, order, reason, actor="admin:" + str(actor))
                 db.commit()
+                notifications.dispatch(db)
                 return detail(db, order, admin=True)
         elif order.checkout_key:
             for item in sorted(order.items, key=lambda i: str(i.variant_id)):
@@ -204,5 +205,7 @@ def transition(db, order_id, expected, target, reason, actor):
                         stock.on_hand += item.quantity
     checkout.audit(db, "admin:" + str(actor), reason)
     order.status = target
+    notifications.order_event(db, order)
     db.commit()
+    notifications.dispatch(db)
     return detail(db, order, admin=True)

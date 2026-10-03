@@ -20,6 +20,7 @@ from app.api import (
     checkout,
     health,
     media,
+    notifications,
     operations,
     shopping,
     wishlist,
@@ -138,6 +139,7 @@ def create_app(settings: Settings | None = None, database_engine=None) -> FastAP
                 "/api/v1/checkout",
                 "/api/v1/orders",
                 "/api/v1/admin",
+                "/api/v1/account",
             )
         ) or request.url.path.endswith("/review-eligibility"):
             response.headers["Cache-Control"] = "no-store"
@@ -164,6 +166,7 @@ def create_app(settings: Settings | None = None, database_engine=None) -> FastAP
     app.include_router(operations.customer, prefix="/api/v1")
     app.include_router(operations.admin, prefix="/api/v1")
     app.include_router(media.router, prefix="/api/v1")
+    app.include_router(notifications.router, prefix="/api/v1")
     return app
 
 

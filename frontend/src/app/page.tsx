@@ -7,13 +7,13 @@ import Icon from "@/components/icon";
 import { publicMetadata } from "@/lib/seo";
 export const metadata = publicMetadata({ title: "Home decor for beautiful everyday living", path: "/" });
 export default async function Home() {
-  const [categories, arrivals, featured] = await Promise.allSettled([
+  const [categories, arrivals, on_sale] = await Promise.allSettled([
     api<Category[]>("/categories"),
     api<ProductPage>("/products?sort=newest&page_size=8"),
-    api<ProductPage>("/products?featured=true&page_size=4"),
+    api<ProductPage>("/products?on_sale=true&page_size=4"),
   ]);
   const items = arrivals.status === "fulfilled" ? arrivals.value.items : [];
-  const picks = featured.status === "fulfilled" ? featured.value.items : [];
+  const picks = on_sale.status === "fulfilled" ? on_sale.value.items : [];
   return (
     <>
       <section className="premium-hero">
@@ -159,8 +159,8 @@ export default async function Home() {
             into your home.
           </h2>
           <p>Find beauty in the everyday.</p>
-          <Link className="button button-primary" href="/shop?featured=true">
-            Explore the edit <Icon name="arrow" />
+          <Link className="button button-primary" href="/shop?on_sale=true">
+            Explore offers <Icon name="arrow" />
           </Link>
         </div>
       </section>
@@ -168,10 +168,10 @@ export default async function Home() {
         <section className="section wrap">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">Selected with a little extra care</p>
-              <h2>The considered edit</h2>
+              <p className="eyebrow">Beautiful pieces, reduced prices</p>
+              <h2>Offers</h2>
             </div>
-            <Link href="/shop?featured=true">View the edit →</Link>
+            <Link href="/shop?on_sale=true">View offers →</Link>
           </div>
           <ProductGrid products={picks} />
         </section>

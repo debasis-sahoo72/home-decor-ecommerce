@@ -40,6 +40,7 @@ def throttle(db: Session, settings: Settings, key: str, limit: int) -> None:
 
 
 def register(db: Session, data: Registration) -> User:
+    from app.services import notifications
     user = User(
         email=str(data.email),
         name=data.name,
@@ -47,6 +48,8 @@ def register(db: Session, data: Registration) -> User:
     )
     db.add(user)
     try:
+        db.flush()
+        notifications.stage(db, user.id, "registration")
         db.commit()
     except IntegrityError as error:
         db.rollback()
@@ -55,6 +58,7 @@ def register(db: Session, data: Registration) -> User:
                 409, "email_registered", "An account with this email already exists."
             ) from None
         raise
+    notifications.dispatch(db)
     return user
 
 

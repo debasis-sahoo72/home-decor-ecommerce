@@ -96,6 +96,9 @@ Health returns `{"status":"ok"}`. Readiness returns `{"status":"ready"}` with Po
 
 ## Tests
 
+See [the automated testing strategy](docs/testing-strategy.md) for current coverage,
+negative cases, browser acceptance scenarios, payment-provider boundaries and launch gates.
+
 Create a separate disposable `decor_test` database. The isolated instance already has one. From `backend`:
 
 ```powershell

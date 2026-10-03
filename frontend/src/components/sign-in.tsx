@@ -37,6 +37,9 @@ export default function SignIn() {
         <>
           <p>Your bag and wishlist stay with your account across devices.</p>
           <div className="account-links">
+            <Link className="button button-secondary" href="/account/notifications">
+              Notifications
+            </Link>
             <Link className="button button-secondary" href="/account/orders">
               Your orders
             </Link>
@@ -160,7 +163,7 @@ export default function SignIn() {
             </label>
             {register && (
               <p id="password-help" className="muted">
-                Use a passphrase of 10–128 characters with at least 5 different
+                Use a passphrase of 15–128 characters with at least 5 different
                 characters.
               </p>
             )}

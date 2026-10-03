@@ -73,8 +73,8 @@ export function Header() {
           <Link href="/categories/textiles">Soft furnishings</Link>
           <Link href="/categories/lighting">Lighting</Link>
           <Link href="/shop?sort=newest">New arrivals</Link>
-          <Link className="edit-link" href="/shop?featured=true">
-            The edit
+          <Link className="offers-link" href="/shop?on_sale=true">
+            Offers
           </Link>
         </nav>
       </header>
@@ -97,7 +97,7 @@ export function Footer() {
           <p className="eyebrow">Explore</p>
           <Link href="/shop">All pieces</Link>
           <Link href="/shop?sort=newest">New arrivals</Link>
-          <Link href="/shop?featured=true">The considered edit</Link>
+          <Link href="/shop?on_sale=true">Offers</Link>
           <Link href="/wishlist">Your wishlist</Link>
         </nav>
         <div>

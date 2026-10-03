@@ -120,15 +120,15 @@ export function OrderList({ admin = false }: { admin?: boolean }) {
       {data &&
         (data.items.length ? (
           <>
-            <div className="ops-table-wrap">
+            <div className="ops-table-wrap" role="region" tabIndex={0} aria-label="Orders table, scroll horizontally for more columns">
               <table className="ops-table">
                 <thead>
                   <tr>
-                    <th>Order</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Items</th>
-                    <th>Total</th>
+                    <th scope="col">Order</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Items</th>
+                    <th scope="col">Total</th>
                   </tr>
                 </thead>
                 <tbody>

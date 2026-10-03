@@ -81,7 +81,6 @@ def product_view(p, admin=False):
         seo_title=p.seo_title,
         seo_description=p.seo_description,
         active=p.active,
-        featured=p.featured,
         created_at=p.created_at.isoformat(),
         variants=[variant_view(v) for v in variants],
         images=[
@@ -178,9 +177,15 @@ def listing(db, query):
         eligible = eligible.where(ProductVariant.price <= query.max_price)
     if query.in_stock:
         eligible = eligible.join(Inventory).where(Inventory.on_hand > Inventory.reserved)
+    if query.on_sale:
+        eligible = eligible.where(ProductVariant.compare_at_price > ProductVariant.price)
+        price = (
+            select(func.min(ProductVariant.price))
+            .where(ProductVariant.id.in_(eligible.correlate(Product)))
+            .correlate(Product)
+            .scalar_subquery()
+        )
     statement = statement.where(eligible.exists())
-    if query.featured:
-        statement = statement.where(Product.featured.is_(True))
     sales = (
         select(func.coalesce(func.sum(OrderItem.quantity), 0))
         .join(Order)
@@ -210,6 +215,21 @@ def listing(db, query):
         .limit(query.page_size)
     ).all()
     items = [product_view(p) for p in products]
+    if query.on_sale:
+        for item in items:
+            # Offer cards must show a matching discounted variant, not a cheaper
+            # full-price variant of the same product. Details still show all variants.
+            item["variants"] = [
+                v
+                for v in item["variants"]
+                if v["compare_at_price"] is not None
+                and Decimal(v["compare_at_price"]) > Decimal(v["price"])
+                and (query.min_price is None or Decimal(v["price"]) >= query.min_price)
+                and (query.max_price is None or Decimal(v["price"]) <= query.max_price)
+                and (not query.in_stock or v["in_stock"])
+            ]
+            item["price"] = item["variants"][0]["price"]
+            item["in_stock"] = any(v["in_stock"] for v in item["variants"])
     add_ratings(db, items)
     return dict(
         items=items,

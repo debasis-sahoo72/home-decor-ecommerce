@@ -19,7 +19,7 @@ def test_demo_catalog_is_labelled_idempotent_and_has_no_fake_reviews(db, client)
             i["url"].startswith("https://local-preview.invalid/demo/") for i in product["images"]
         )
         assert "LOCAL PREVIEW ONLY" in product["description"]
-    assert client.get("/api/v1/products?featured=true").json()["total"] == 3
+    assert client.get("/api/v1/products?on_sale=true").json()["total"] == 3
     assert client.get("/api/v1/products?sort=newest").json()["total"] == 6
     assert db.scalar(select(func.count()).select_from(Review)) == 0
     assert db.scalar(select(func.count()).select_from(DeliveryPincode)) == 0

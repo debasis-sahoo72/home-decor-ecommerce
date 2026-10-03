@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.api.dependencies import require_admin, session_csrf
 from app.core.errors import AppError
@@ -84,7 +84,15 @@ def update_category(category_id: UUID, data: CategoryWrite, db: Session = Depend
 def admin_products(page: int = Query(1, ge=1, le=10000), db: Session = Depends(get_session)):
     return [
         catalog.product_view(p, admin=True)
-        for p in db.scalars(select(Product).order_by(Product.id).offset((page - 1) * 24).limit(24))
+        for p in db.scalars(
+            select(Product)
+            .options(
+                selectinload(Product.category),
+                selectinload(Product.images),
+                selectinload(Product.variants).selectinload(ProductVariant.inventory),
+            )
+            .order_by(Product.id).offset((page - 1) * 24).limit(24)
+        )
     ]
 
 

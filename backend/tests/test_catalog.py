@@ -63,7 +63,7 @@ def test_public_detail_and_decimal_discount(client, item):
         ("min_price=801", 0),
         ("max_price=800", 1),
         ("in_stock=true", 1),
-        ("featured=true", 0),
+        ("on_sale=true", 1),
         ("sort=best_sellers", 0),
         ("q=%25", 0),
     ],

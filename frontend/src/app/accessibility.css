@@ -1,0 +1,58 @@
+/* Shared accessibility safeguards; scoped specificity overrides page styles. */
+body :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  border-color: var(--color-input-border);
+}
+body .header-search { border-color: var(--color-input-border); }
+body .ops-nav :focus-visible {
+  outline-color: #ffffff;
+}
+body :is(.gallery-controls button, .cart-quantity button) {
+  min-width: 44px;
+  min-height: 44px;
+}
+body :is(.text-button, .account-nav a, .review-link) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+body :is(.ops-table-wrap, .store-nav, .gallery-thumbnails) {
+  scroll-padding: 8px;
+}
+body :is(.ops-card, .checkout-panel, .cart-line, .product-card, .review-card) {
+  overflow-wrap: anywhere;
+}
+body :is(.checkout-grid, .order-detail-grid, .address-fields) > * {
+  min-width: 0;
+}
+body .checkout-addresses { min-width: 0; }
+body .ops-table th { white-space: nowrap; }
+body .review-form :is(select, textarea) {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-input-border);
+  border-radius: 4px;
+  background: var(--color-surface);
+  font: inherit;
+  margin-block: 0.5rem 1rem;
+}
+@media (max-width: 768px) {
+  body :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+    font-size: 1rem;
+  }
+  body .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  body .filters > * { min-width: 0; }
+}
+@media (max-width: 640px) {
+  body .header-actions { gap: 4px; }
+  body .header-actions a { min-width: 32px; justify-content: center; }
+  body .header-count { right: -2px; }
+}
+@media (max-width: 360px) {
+  body .filters { grid-template-columns: 1fr; }
+  body .section-heading { flex-wrap: wrap; }
+  body .section-heading > a { max-width: none; }
+  body .cart-delivery > div { flex-wrap: wrap; }
+  body .cart-delivery .button { width: 100%; }
+  body .ops-metrics { grid-template-columns: 1fr; }
+}

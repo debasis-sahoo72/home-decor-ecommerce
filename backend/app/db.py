@@ -31,4 +31,5 @@ SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
 
 def get_session(request: Request) -> Generator[Session, None, None]:
     with request.app.state.session_factory() as session:
+        session.info["settings"] = request.app.state.settings
         yield session

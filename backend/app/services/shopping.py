@@ -5,6 +5,7 @@ from uuid import UUID
 
 from sqlalchemy import delete, func, select
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.orm import selectinload
 
 from app.core.errors import AppError
 from app.models.entities import (
@@ -97,16 +98,28 @@ def cart_items(db, token_hash=None, user_id=None, pincode=None):
     retail = Decimal("0")
     merchandise = Decimal("0")
     rows = (
-        db.scalars(
+        list(db.scalars(
             select(CartItem)
             .where(CartItem.cart_id == cart.id)
             .order_by(CartItem.created_at, CartItem.id)
-        )
+        ))
         if cart
         else []
     )
+    variants = {
+        v.id: v
+        for v in db.scalars(
+            select(ProductVariant)
+            .where(ProductVariant.id.in_([item.variant_id for item in rows]))
+            .options(
+                selectinload(ProductVariant.inventory),
+                selectinload(ProductVariant.product).selectinload(Product.category),
+                selectinload(ProductVariant.product).selectinload(Product.images),
+            )
+        )
+    } if rows else {}
     for item in rows:
-        v = db.get(ProductVariant, item.variant_id)
+        v = variants[item.variant_id]
         p, c = v.product, v.product.category
         stock = v.inventory
         available = max(0, stock.on_hand - stock.reserved) if stock else 0

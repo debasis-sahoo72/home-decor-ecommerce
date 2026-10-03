@@ -15,7 +15,7 @@ const allowed = [
   "sort",
   "page",
   "in_stock",
-  "featured",
+  "on_sale",
 ];
 export default async function Shop({
   search,
@@ -58,6 +58,8 @@ export default async function Shop({
     return <CatalogUnavailable />;
   }
   const path = category ? `/categories/${category.slug}` : "/shop";
+  const offersOnly = params.get("on_sale") === "true";
+  const resetPath = offersOnly ? `${path}?on_sale=true` : path;
   if (result.page > 1 && result.page > result.pages) notFound();
   const pageLink = (page: number) => {
     const next = new URLSearchParams(params);
@@ -84,14 +86,14 @@ export default async function Shop({
           <p className="eyebrow">Find something that feels like you</p>
           <h1>
             {category?.name ||
-              (params.get("featured") === "true"
-                ? "The considered edit"
+              (params.get("on_sale") === "true"
+                ? "Offers"
                 : params.get("sort") === "newest"
                   ? "New arrivals"
                   : "The collection")}
           </h1>
           <p className="muted">
-            {category?.description ||
+            {offersOnly ? "Only reduced-price pieces, with savings based on the displayed compare-at price." : category?.description ||
               "Beautiful details for the rooms you love."}
           </p>
         </div>
@@ -176,16 +178,16 @@ export default async function Shop({
               <label className="checkbox-label">
                 <input
                   type="checkbox"
-                  name="featured"
+                  name="on_sale"
                   value="true"
-                  defaultChecked={params.get("featured") === "true"}
+                  defaultChecked={params.get("on_sale") === "true"}
                 />{" "}
-                The featured edit
+                Offers only
               </label>
               <button className="button button-primary" type="submit">
                 Apply filters
               </button>
-              <Link href={path}>Clear filters</Link>
+              <Link href={resetPath}>Clear filters</Link>
             </form>
           </ResponsiveFilters>
         </aside>
@@ -198,12 +200,11 @@ export default async function Shop({
             <ProductGrid products={result.items} />
           ) : (
             <div className="empty-note">
-              <h2>Room for something new.</h2>
+              <h2>{offersOnly ? "No offers match right now." : "Room for something new."}</h2>
               <p>
-                No pieces match these filters right now. Try a different search
-                or explore the full collection.
+                {offersOnly ? "Try adjusting your filters or check back for reduced-price pieces." : "No pieces match these filters right now. Try a different search or explore the full collection."}
               </p>
-              <Link href={path}>Reset filters ↗</Link>
+              <Link href={resetPath}>Reset filters ↗</Link>
             </div>
           )}
           {result.pages > 1 && (

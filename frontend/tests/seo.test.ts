@@ -16,7 +16,7 @@ test("indexing is opt-in and requires an unambiguous public HTTPS origin", () =>
 test("pagination keeps its own canonical; filters and malformed queries are noindex", () => {
   assert.deepEqual(listingSeo("/shop", { page: "2" }), { path: "/shop?page=2", suffix: " — Page 2", noindex: false });
   assert.equal(listingSeo("/shop", { page: "1" }).path, "/shop");
-  for (const query of [{ q: "vase" }, { featured: "true" }, { sort: "newest" }, { page: "0" }, { page: ["1", "2"] }]) {
+  for (const query of [{ q: "vase" }, { on_sale: "true" }, { sort: "newest" }, { page: "0" }, { page: ["1", "2"] }]) {
     assert.equal(listingSeo("/shop", query).noindex, true);
   }
 });
